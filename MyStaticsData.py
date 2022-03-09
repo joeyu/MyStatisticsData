@@ -1,3 +1,4 @@
+import logging
 import re
 import pandas as pd
 import matplotlib as mpl
@@ -9,6 +10,8 @@ from pathlib import Path
 import io
 import json
 from datetime import datetime
+
+from sympy import per
 
 def load_meta(meta_fp:str = 'meta.json'):
     with io.open(meta_fp, 'r', encoding='utf-8') as f:
@@ -34,44 +37,39 @@ def load_raw(raw_fp:str = '.', meta_fn:str = 'meta.json'):
     for fpath in fp_array:
         # if not '2021' in fpath.name:
         #    continue 
-        print(fpath)
+        logging.info(f"Reading '{fpath}'...")
         df = pd.read_csv(fpath)
-        if meta_raw['index_orientation'] == 0:
-            index = df.iloc[:,0]
-            index = index.apply(lambda x: x.strip())
+
+        # Set column 0 as index
+        df = df.set_index(df.columns[0])
+
+        # transpose the df
+        if meta_raw['index_orientation'] == 1:
+            df = df.T
+
+        # if meta_raw['index_orientation'] == 0:
+        index = df.index
+        periods = []
+        data = []
+        for i in index:
             if 'year' in meta_raw['index_freq']:
-                index = index.apply(lambda x: datetime.strptime(x, meta_raw['indices']['Y']))
-                index = index.apply(lambda x: pd.Period(x, 'A-DEC'))
-            df.iloc[:,0] = index
-            df = df.set_index(df.columns[0])
+                i = i.strip()
+                try:
+                    i_dt = datetime.strptime(i, meta_raw['indices']['Y'])
+                except ValueError:
+                    logging.warning(f"Row '{i}' of file '{fpath}' is ignored!")
+                    continue
+                else:
+                    periods.append(pd.Period(i_dt, freq = "A-DEC"))
+                    row_data = [ii * meta_raw['unit'] for ii in pd.to_numeric(df.loc[i,:])]
+                    data.append(row_data)
                 
+        if data and periods:
+            period_index = pd.PeriodIndex(periods, freq = 'A-DEC')
+            df = pd.DataFrame(data, index = period_index, columns = df.columns)
+
             # Append to the DataFrame array
             df_array.append(df)
-
-        elif meta_raw['index_orientation'] == 1:
-            # column
-            new_col = df.iloc[:,0].apply(lambda x: x.strip())
-
-            data = []
-            periods = []
-            # row
-            if 'year' in meta_raw['index_freq']:
-                col_regex = '^' + meta_raw['indices']['Y'] + '$'
-                col_regex = col_regex.replace('%Y', r'([12]\d{3})')
-                for col in df:
-                    m = re.match(col_regex, col) 
-                    if m:
-                        row_data = [i * meta_raw['unit'] for i in pd.to_numeric(df[col]).values]
-                        data.append(row_data)
-                        periods.append(m.groups()[0])
-                        
-            # Construct the DataFrame
-            if data and periods:
-                index = pd.PeriodIndex(periods, freq = 'A-DEC')
-                df = pd.DataFrame(data, index = index, columns = new_col)
-
-                # Append to the DataFrame array
-                df_array.append(df)
 
     # Combine all the DataFrame array and sort ascendently
     combined_df = pd.concat(df_array)
@@ -82,10 +80,10 @@ def load_raw(raw_fp:str = '.', meta_fn:str = 'meta.json'):
 mpl.rc('font', family = 'SimHei')
 
 def plot_with_pct_change(df, title:str = None):
-
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
-        
+
+    pct = df.pct_change() * 100    
     fig, axes = plt.subplots(len(df.columns), 1, sharex = True)
     if not isinstance(axes, np.ndarray): 
         axes = [axes]
@@ -94,10 +92,8 @@ def plot_with_pct_change(df, title:str = None):
         ax.bar(df.index.strftime('%Y'), df[col])
         ax.set_ylabel(col + "（元）")
 
-        pct = df[col].pct_change()
-        pct = pct.apply(lambda x: x * 98)
         ax0 = ax.twinx()
-        ax0.plot(df.index.strftime('%Y'), pct, color = "red")
+        ax0.plot(df.index.strftime('%Y'), pct[col], color = "red")
         ax0.set_ylabel("Change%")
 
 def data_and_pct_change(data):
