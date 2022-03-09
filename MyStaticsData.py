@@ -8,13 +8,14 @@ import numpy as np
 from pathlib import Path
 import io
 import json
+from datetime import datetime
 
 def load_meta(meta_fp:str = 'meta.json'):
     with io.open(meta_fp, 'r', encoding='utf-8') as f:
         meta = json.load(f)
     return meta
 
-def load_raw(raw_fp:str, meta_fn:str = 'meta.json'):
+def load_raw(raw_fp:str = '.', meta_fn:str = 'meta.json'):
     """
     Loads raw data from all stored .csv files
     """
@@ -35,15 +36,27 @@ def load_raw(raw_fp:str, meta_fn:str = 'meta.json'):
         #    continue 
         print(fpath)
         df = pd.read_csv(fpath)
-        if meta_raw['index_orientation'] == 1:
+        if meta_raw['index_orientation'] == 0:
+            index = df.iloc[:,0]
+            index = index.apply(lambda x: x.strip())
+            if 'year' in meta_raw['index_freq']:
+                index = index.apply(lambda x: datetime.strptime(x, meta_raw['indices']['Y']))
+                index = index.apply(lambda x: pd.Period(x, 'A-DEC'))
+            df.iloc[:,0] = index
+            df = df.set_index(df.columns[0])
+                
+            # Append to the DataFrame array
+            df_array.append(df)
+
+        elif meta_raw['index_orientation'] == 1:
             # column
-            new_col = [s.strip() for s in df.iloc[:,0]]
+            new_col = df.iloc[:,0].apply(lambda x: x.strip())
 
             data = []
             periods = []
             # row
             if 'year' in meta_raw['index_freq']:
-                col_regex = '^' + meta_raw['columns']['Y'] + '$'
+                col_regex = '^' + meta_raw['indices']['Y'] + '$'
                 col_regex = col_regex.replace('%Y', r'([12]\d{3})')
                 for col in df:
                     m = re.match(col_regex, col) 

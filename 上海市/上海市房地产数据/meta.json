@@ -1,0 +1,17 @@
+{
+    "source": {
+        "url": "http://shanghai.chinatax.gov.cn/xwdt/ztzl/zcgll/fdcggsdzl/fcszc/201402/t406491.html",
+        "synopsis": "上海市统计局历年公布的新建商品住房平均销售价格（元/平方米）"
+    },
+    "raw": {
+        "index_orientation": 0,
+        "index_freq": [
+            "year"
+        ],
+        "accumulated": false,
+        "indices": {
+            "Y": "%Y年"
+        },
+        "unit": 1
+    }
+}

@@ -39,7 +39,7 @@ def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
         df.to_csv(f"{cvs_fp_prefix}_{name}.csv", index=False)
 
 
-combined_df = msd.load_raw('raw')
+combined_df = msd.load_raw()
 
 #combined_df.to_excel("a.xlsx")
     
