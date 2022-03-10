@@ -29,5 +29,5 @@ while True:
 sys.path.append(str(d))
 import MyStaticsData as msd
 
-df = msd.load()
+df = msd.load2()
     

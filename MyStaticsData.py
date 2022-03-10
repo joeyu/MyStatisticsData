@@ -77,6 +77,46 @@ def load(data_fp:str = '.'):
 
     return combined_df.sort_index(axis = 0)
 
+def load2(data_fp:str = '.'):
+    """
+    Loads raw data from all stored .csv files
+    """
+
+    meta_fn = 'meta.json'
+    fp = Path(data_fp).resolve()
+    if fp.is_dir():
+        meta_fn = str(fp / meta_fn)
+        fp_array = fp.glob('*.csv')
+    elif fp.is_file():
+        meta_fn = str(fp.parent / meta_fn)
+        fp_array = [fp]
+
+    meta = load_meta(meta_fn)
+
+    combined_df = None
+    df_array = []
+    for fpath in fp_array:
+        logging.info(f"Reading '{fpath}'...")
+        header = 0
+        if 'header' in meta:
+            header = meta['header']
+        df = pd.read_csv(fpath, index_col = 0, header = header)
+        index = df.index
+
+        if 'A-DEC' in meta['index_freq'] or ('Q-DEC' in meta['index_freq'] and meta['accumulated']):
+            index = pd.PeriodIndex(index, freq = 'A-DEC')
+        
+        df.index = index
+
+        # Append to the DataFrame array
+        df_array.append(df)
+
+    # Combine all the DataFrame array and sort ascendently
+    combined_df = pd.concat(df_array)
+
+    return combined_df.sort_index(axis = 0)
+
+
 def loadm(data_fp):
     df_array = []
     if type(data_fp) == str:

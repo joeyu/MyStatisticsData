@@ -4,13 +4,9 @@
         "synopsis": "上海市统计局历年公布的新建商品住房平均销售价格（元/平方米）"
     },
     "column_prefix": "上海市",
-    "index_orientation": 0,
     "index_freq": [
         "A-DEC"
     ],
-    "index_formats": {
-        "Y": "%Y年"
-    },
     "accumulated": false,
     "unit": 1
 }
