@@ -13,25 +13,26 @@ from datetime import datetime
 
 from sympy import per
 
-def load_meta(meta_fp:str = 'meta.json'):
+def load_meta(meta_fp:str):
     with io.open(meta_fp, 'r', encoding='utf-8') as f:
         meta = json.load(f)
     return meta
 
-def load(raw_fp:str = '.', meta_fn:str = None):
+def load(data_fp:str = '.'):
     """
     Loads raw data from all stored .csv files
     """
 
-    if not meta_fn:
-        meta_fn = "meta.json"
-    meta = load_meta(meta_fn)
-    #print(meta)
-    fp = Path(raw_fp)
+    meta_fn = 'meta.json'
+    fp = Path(data_fp).resolve()
     if fp.is_dir():
-        fp_array = fp.glob('**/*.csv')
+        meta_fn = str(fp / meta_fn)
+        fp_array = fp.glob('*.csv')
     elif fp.is_file():
+        meta_fn = str(fp.parent / meta_fn)
         fp_array = [fp]
+
+    meta = load_meta(meta_fn)
 
     combined_df = None
     df_array = []

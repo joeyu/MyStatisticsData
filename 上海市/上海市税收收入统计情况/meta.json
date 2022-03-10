@@ -6,6 +6,7 @@
     "index_freq": [
         "Q-DEC"
     ],
+    "column_prefix": "上海市",
     "index_formats": {
         "Q1": "%Y年第一季度",
         "H1": "%Y年上半年",
