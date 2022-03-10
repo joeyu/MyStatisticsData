@@ -77,6 +77,16 @@ def load(data_fp:str = '.'):
 
     return combined_df.sort_index(axis = 0)
 
+def loadm(data_fp):
+    df_array = []
+    if type(data_fp) == str:
+        data_fp = [data_fp]
+    for fp in data_fp:
+        df = load(fp)
+        df_array.append(df)
+
+    return pd.concat(df_array, axis = 1) 
+
 #Set font to support Chinese
 mpl.rc('font', family = 'SimHei')
 
