@@ -29,19 +29,5 @@ while True:
 sys.path.append(str(d))
 import MyStaticsData as msd
 
-def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
-    sheet_df_dicts = pd.read_excel(excel_fp, sheet_name=None)
-
-    for name, df in sheet_df_dicts.items():
-        df.columns = [re.sub(r"[  　]",  '', s) for s in df.columns]
-        for i in range(len(df)):
-            df.iloc[i,0] = re.sub(r"[  　]",  '', df.iloc[i,0])
-        df.to_csv(f"{cvs_fp_prefix}_{name}.csv", index=False)
-
-
-combined_df = msd.load_raw()
-
-#combined_df.to_excel("a.xlsx")
-    
-
+df = msd.load()
     

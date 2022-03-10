@@ -2,19 +2,16 @@
     "source": {
         "url": "http: //shanghai.chinatax.gov.cn/xxgk/sstj/index.html"
     },
-    "raw": {
-        "index_orientation": 1,
-        "index_freq": [
-            "quarter",
-            "year"
-        ],
-        "accumulated": true,
-        "indices": {
-            "Q1": "%Y年第一季度",
-            "H1": "%Y年上半年",
-            "Q3": "%Y年前三季度",
-            "Y": "%Y年"
-        },
-        "unit": 10000
-    }
+    "index_orientation": 1,
+    "index_freq": [
+        "Q-DEC"
+    ],
+    "index_formats": {
+        "Q1": "%Y年第一季度",
+        "H1": "%Y年上半年",
+        "Q3": "%Y年前三季度",
+        "Y": "%Y年"
+    },
+    "accumulated": true,
+    "unit": 10000
 }

@@ -18,14 +18,15 @@ def load_meta(meta_fp:str = 'meta.json'):
         meta = json.load(f)
     return meta
 
-def load_raw(raw_fp:str = '.', meta_fn:str = 'meta.json'):
+def load(raw_fp:str = '.', meta_fn:str = None):
     """
     Loads raw data from all stored .csv files
     """
 
+    if not meta_fn:
+        meta_fn = "meta.json"
     meta = load_meta(meta_fn)
-    meta_raw = meta['raw']
-    #print(meta_raw)
+    #print(meta)
     fp = Path(raw_fp)
     if fp.is_dir():
         fp_array = fp.glob('**/*.csv')
@@ -44,25 +45,24 @@ def load_raw(raw_fp:str = '.', meta_fn:str = 'meta.json'):
         df = df.set_index(df.columns[0])
 
         # transpose the df
-        if meta_raw['index_orientation'] == 1:
+        if meta['index_orientation'] == 1:
             df = df.T
 
-        # if meta_raw['index_orientation'] == 0:
+        # if meta['index_orientation'] == 0:
         index = df.index
         periods = []
         data = []
         for i in index:
-            if 'year' in meta_raw['index_freq']:
+            if 'A-DEC' in meta['index_freq'] or ('Q-DEC' in meta['index_freq'] and meta['accumulated']):
                 i = i.strip()
                 try:
-                    i_dt = datetime.strptime(i, meta_raw['indices']['Y'])
+                    i_dt = datetime.strptime(i, meta['index_formats']['Y'])
                 except ValueError:
                     logging.warning(f"Row '{i}' of file '{fpath}' is ignored!")
                     continue
                 else:
                     periods.append(pd.Period(i_dt, freq = "A-DEC"))
-                    row_data = [ii * meta_raw['unit'] for ii in pd.to_numeric(df.loc[i,:])]
-                    data.append(row_data)
+                    data.append([ii * meta['unit'] for ii in pd.to_numeric(df.loc[i,:])])
                 
         if data and periods:
             period_index = pd.PeriodIndex(periods, freq = 'A-DEC')
@@ -100,3 +100,12 @@ def data_and_pct_change(data):
     pct = data.pct_change()
     pct.name = "Change%"
     return pd.concat([data, pct], axis = 1)
+
+def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
+    sheet_df_dicts = pd.read_excel(excel_fp, sheet_name=None)
+
+    garbages = r"[  　]";
+    for name, df in sheet_df_dicts.items():
+        df.columns = [re.sub(garbages, '', s) for s in df]
+        df = df.applymap(lambda x: re.sub(garbages, '', x) if type(x) == str else x)
+        df.to_csv(f"{cvs_fp_prefix}_{name}.csv", index=False)
