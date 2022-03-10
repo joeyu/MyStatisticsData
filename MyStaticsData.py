@@ -90,22 +90,32 @@ def loadm(data_fp):
 #Set font to support Chinese
 mpl.rc('font', family = 'SimHei')
 
+def plot_twinx(df1, df2):
+    if isinstance(df1, pd.core.series.Series):
+        df1 = pd.DataFrame(df1)
+
+    if isinstance(df2, pd.core.series.Series):
+        df2 = pd.DataFrame(df2)
+
+    fig, axes = plt.subplots(len(df1.columns), 1, sharex = True)
+    if not isinstance(axes, np.ndarray): 
+        axes = [axes]
+    for i in range(len(df1.columns)):
+        ax = axes[i]
+        ax.bar(df1.index.strftime('%Y'), df1.iloc[:,i])
+        ax.set_ylabel(df1.columns[i] + "（元）")
+
+        ax0 = ax.twinx()
+        ax0.plot(df2.index.strftime('%Y'), df2.iloc[:,i], color = "red")
+        ax0.set_ylabel(df2.columns[i])
+
 def plot_with_pct_change(df, title:str = None):
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
 
     pct = df.pct_change() * 100    
-    fig, axes = plt.subplots(len(df.columns), 1, sharex = True)
-    if not isinstance(axes, np.ndarray): 
-        axes = [axes]
-    for i, col in enumerate(df.columns):
-        ax = axes[i]
-        ax.bar(df.index.strftime('%Y'), df[col])
-        ax.set_ylabel(col + "（元）")
-
-        ax0 = ax.twinx()
-        ax0.plot(df.index.strftime('%Y'), pct[col], color = "red")
-        ax0.set_ylabel("Change%")
+    pct.columns = [s + " Change %" for s in pct]
+    plot_twinx(df, pct)
 
 def data_and_pct_change(data):
     pct = data.pct_change()
