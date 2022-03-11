@@ -11,7 +11,7 @@ import io
 import json
 from datetime import datetime
 
-from sympy import proper_divisor_count
+logging.basicConfig(level=logging.INFO)
 
 def load_meta(meta_fp:str):
     with io.open(meta_fp, 'r', encoding='utf-8') as f:
@@ -26,37 +26,39 @@ def load(data_fp:str = '.'):
 
     if type(data_fp) == str:
         data_fp = [data_fp]
-    else:
-        data_fp = data_fp
 
-    fp_array = []
+    df_array = []
     for fp in data_fp:
         fp = Path(fp).resolve()
         if fp.is_dir():
-            fp_array.extend(fp.glob('*.csv'))
+            fp_array = (fp.glob('*.csv'))
+            meta_fn = str(fp / meta_fn)
         else:
-            fp_array.append(fp)
+            fp_array = [fp]
+            meta_fn = str(fp.parent / meta_fn)
 
-    df_freq_groups = {}
-    for fp in fp_array:
-        logging.info(f"Reading '{fp}'...")
-        meta_fn = str(fp.parent / meta_fn)
         meta = load_meta(meta_fn)
-        header = 0
-        if 'header' in meta:
-            header = meta['header']
-        index_col = 0
-        df = pd.read_csv(fp, index_col = index_col, header = header)
-        df.index = pd.PeriodIndex([pd.Period(i) for i in df.index])
 
-        freqstr = df.index.freqstr
-        if freqstr in df_freq_groups:
-            df_freq_groups[freqstr] = pd.concat([df_freq_groups[freqstr], df])
-        else:
-            df_freq_groups[freqstr] = df
+        df_freq_groups = {}
+        for fp in fp_array:
+            logging.info(f"Reading '{fp}'...")
+            print(f"Reading '{fp}'...")
+            header = 0
+            if 'header' in meta:
+                header = meta['header']
+            index_col = 0
+            df = pd.read_csv(fp, index_col = index_col, header = header)
+            df.index = pd.PeriodIndex([pd.Period(i) for i in df.index])
 
-    # Combine all the DataFrame array and sort ascendently
-    return [df.sort_index(axis = 0) for df in df_freq_groups.values()]
+            freqstr = df.index.freqstr
+            if freqstr in df_freq_groups:
+                df_freq_groups[freqstr] = pd.concat([df_freq_groups[freqstr], df])
+            else:
+                df_freq_groups[freqstr] = df
+
+        df_array.extend([df.sort_index(axis = 0) for df in df_freq_groups.values()])
+        
+    return df_array
 
 #Set font to support Chinese
 mpl.rc('font', family = 'SimHei')

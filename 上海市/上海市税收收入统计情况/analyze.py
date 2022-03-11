@@ -33,7 +33,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 #df = msd.load(['上海市税收收入统计情况_2021年.csv', '上海市税收收入统计情况_2005年.csv'])
-df = msd.load()
+dfs = msd.load()
 
 def convert_raw(raw_fp:str = '.'):
     fp = Path(raw_fp).resolve()

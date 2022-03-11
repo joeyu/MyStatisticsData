@@ -29,9 +29,9 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-df = msd.loadm([ \
-    "上海市\上海市房地产数据", \
-    "上海市\上海市税收收入统计情况" \
+dfs = msd.load([ \
+    "上海市/上海市房地产数据/存量房交易情况", \
+    "上海市/上海市税收收入统计情况" \
     ])
 
     
