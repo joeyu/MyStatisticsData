@@ -16,7 +16,7 @@ from pathlib import Path
 import io
 import json
 
-module_fn = 'MyStaticsData.py'
+module_fn = 'MyStatisticsData.py'
 d = Path().cwd()
 while True:
     p = d / module_fn
@@ -27,7 +27,7 @@ while True:
             raise FileNotFoundError(f"Can NOT find '{module_fn}'")
         d = d.parent
 sys.path.append(str(d))
-import MyStaticsData as msd
+import MyStatisticsData as msd
 
 df = msd.loadm([ \
     "上海市\上海市房地产数据", \

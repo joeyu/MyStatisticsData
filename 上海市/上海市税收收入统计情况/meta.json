@@ -1,18 +1,8 @@
 {
     "source": {
-        "url": "http: //shanghai.chinatax.gov.cn/xxgk/sstj/index.html"
+        "url": "http://shanghai.chinatax.gov.cn/xxgk/sstj/index.html"
     },
-    "index_orientation": 1,
-    "index_freq": [
-        "Q-DEC"
-    ],
+    "header": [0, 1],
     "column_prefix": "上海市",
-    "index_formats": {
-        "Q1": "%Y年第一季度",
-        "H1": "%Y年上半年",
-        "Q3": "%Y年前三季度",
-        "Y": "%Y年"
-    },
-    "accumulated": true,
-    "unit": 10000
+    "unit": "元"
 }
