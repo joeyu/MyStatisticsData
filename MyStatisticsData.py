@@ -58,6 +58,10 @@ def load(data_fp:str = '.'):
 
         df_array.extend([df.sort_index(axis = 0) for df in df_freq_groups.values()])
         
+    if len(df_array) == 0:
+        df_array = None
+    elif len(df_array) == 1:
+        df_array = df_array[0]
     return df_array
 
 #Set font to support Chinese
