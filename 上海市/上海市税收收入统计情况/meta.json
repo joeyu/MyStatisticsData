@@ -2,7 +2,5 @@
     "source": {
         "url": "http://shanghai.chinatax.gov.cn/xxgk/sstj/index.html"
     },
-    "header": [0, 1],
-    "column_prefix": "上海市",
-    "unit": "元"
+    "column_prefix": "上海市"
 }

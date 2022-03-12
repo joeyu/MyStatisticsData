@@ -43,9 +43,20 @@ def load(data_fp:str = '.'):
         for fp in fp_array:
             logging.info(f"Reading '{fp}'...")
             print(f"Reading '{fp}'...")
-            header = 0
             if 'header' in meta:
                 header = meta['header']
+            else:
+                with open(fp, encoding='utf8') as f:
+                    lines = f.readlines()
+                    for i, l in enumerate(lines):
+                        first_item = l.split(',')[0]
+                        try:
+                            pd.Period(first_item)
+                        except:
+                            continue
+                        else:
+                            break
+                    header = list(range(i))
             index_col = 0
             df = pd.read_csv(fp, index_col = index_col, header = header)
             df.index = pd.PeriodIndex([pd.Period(i) for i in df.index])
