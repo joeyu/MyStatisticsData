@@ -32,8 +32,11 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-dfs = msd.load()
-
-
+#dfs = msd.load()
+df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
+df1 = df1.drop(df1.columns[-1], axis = 1)
+cols = pd.MultiIndex.from_arrays([['一般公共预算收入', '一般公共预算收入'], ['税收收入', '非税收入'], ['税收收入', '非税收入']])
+df1.columns = cols
+merged_df = df0.reset_index().merge(df1, how="left").set_index('index')
 
     
