@@ -58,7 +58,7 @@ def load(data_fp:str = '.'):
                             break
                     header = list(range(i))
             index_col = 0
-            df = pd.read_csv(fp, index_col = index_col, header = header)
+            df = pd.read_csv(fp, index_col = index_col, header = header, comment = "#")
             df.index = pd.PeriodIndex([pd.Period(i) for i in df.index])
 
             freqstr = df.index.freqstr
