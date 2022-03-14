@@ -36,9 +36,30 @@ import MyStatisticsData as msd
 dfs = msd.load()
 
 
+#df = pd.read_csv("raw/D5211101C2011XXXXC.csv", index_col = [0, 1], header = [0])
+#dd = pd.DataFrame()
+#for i in df.index.levels[0]:
+#    d = pd.DataFrame()
+#    # print(i)
+#    for j in range(0, 100, 5):
+#        # print(j)
+#        # print(df.loc[i].loc[str(j): str(j+4)]) 
+#        s = df.loc[i].loc[str(j):str(j+4)].sum()
+#        #print(s)
+#        d[str(j) + '-' + str(j+4)] = s
+#    d['100+'] = df.loc[i, '100+']
+#    d['总计'] = df.loc[i, '总计']
+#    d.columns = pd.MultiIndex.from_arrays([[i] * len(d.columns), d.columns], names =['性别', '年龄段'])
+#    dd = pd.concat([dd, d], axis = 1)
+#
+#levels = [['包括外籍家庭佣工']] + dd.columns.levels
+#dd.columns = pd.MultiIndex.from_product(levels)
+#print(dd)
 
+    
+     
 
-#convert_raw2()
+    
 
 
     
