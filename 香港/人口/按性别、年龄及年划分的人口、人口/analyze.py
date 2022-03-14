@@ -35,7 +35,6 @@ import MyStatisticsData as msd
 #df = msd.load(['上海市税收收入统计情况_2021年.csv', '上海市税收收入统计情况_2005年.csv'])
 dfs = msd.load()
 
-
 #df = pd.read_csv("raw/D5211101C2011XXXXC.csv", index_col = [0, 1], header = [0])
 #dd = pd.DataFrame()
 #for i in df.index.levels[0]:
@@ -52,9 +51,10 @@ dfs = msd.load()
 #    d.columns = pd.MultiIndex.from_arrays([[i] * len(d.columns), d.columns], names =['性别', '年龄段'])
 #    dd = pd.concat([dd, d], axis = 1)
 #
-#levels = [['包括外籍家庭佣工']] + dd.columns.levels
-#dd.columns = pd.MultiIndex.from_product(levels)
-#print(dd)
+## levels = [['包括外籍家庭佣工']] + dd.columns.levels
+#levels = [['包括外籍家庭佣工'] * len(dd.columns), dd.columns.get_level_values(0).to_list(), dd.columns.get_level_values(1).to_list()]
+#dd.columns = pd.MultiIndex.from_arrays(levels, names = ['', '性别', '年龄段'])
+## print(dd)
 
     
      
