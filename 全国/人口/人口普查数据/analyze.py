@@ -34,11 +34,14 @@ import MyStatisticsData as msd
 
 dfs = msd.load()
 df = dfs
-s_65_plus = df['常住人口'].loc[:,'65-69':].sum(axis=1)
-s_15_minus = df['常住人口'].loc[:,'0-4':'10-14'].sum(axis=1)
-s_total = df['常住人口','合计']
-df_combined = pd.DataFrame({'总常住人口数': s_total, '小于15岁': s_15_minus, '65岁+' : s_65_plus})
-df_combined.plot.bar(grid = True, title = "上海历年人口普查常住人口数", ylabel = "人口数")
+cities = df.columns.levels[0]
+cols = pd.MultiIndex.from_product([cities, ['合计'], ['合计']])
+df_cities = df[cols]
+df_cities.columns = df_cities.columns.get_level_values(0)
+df_cities = df_cities.drop('全国', axis = 1)
+df_cities = df_cities.T
+df_cities.plot.bar(grid = True, title = "2010年第六次人口普查数据（分地区）", ylabel = "人口数")
+
 
 #df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
 #df1 = df1.drop(df1.columns[-1], axis = 1)
