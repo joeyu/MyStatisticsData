@@ -34,6 +34,12 @@ import MyStatisticsData as msd
 
 #df = msd.load(['上海市税收收入统计情况_2021年.csv', '上海市税收收入统计情况_2005年.csv'])
 dfs = msd.load()
+df_old = dfs['包括外籍家庭佣工', '总计'].loc[:,'65-69':'100+']
+df_total = dfs['包括外籍家庭佣工', '总计', '总计']
+df_old_pct = df_old.div(df_total, axis = 'index') * 100
+ax = df_old_pct.plot.area(grid = True, title = '香港老龄人口数百分比', ylabel = '百分比')
+# ax.set_ylabel("百分比%")
+# plt.show()
 
 #df = pd.read_csv("raw/D5211101C2011XXXXC.csv", index_col = [0, 1], header = [0])
 #dd = pd.DataFrame()
