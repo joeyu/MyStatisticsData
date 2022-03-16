@@ -31,7 +31,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 df = msd.load()
-df_house = df['商品房销售面积', '住宅', '住宅']
+df_house = df['商品房销售面积', '住宅', '合计']
 
 fig, axes = plt.subplots(2, 1, sharex = True)
 # axes[0].bar(df_house.index.strftime("%Y"), df_house, title = "上海住宅销售面积", ylabel = "面积（平米）")
@@ -47,7 +47,12 @@ ax_twinx.set_ylabel("年增长率（%）")
 
 # area per capita
 df_pop = msd.load("../../人口/人口.csv")
-df_apc = df_house.cumsum() / df_pop.loc[df_house.index,'常住人口']['常住人口']
+row2021 = df_pop.loc['2020'].to_frame()
+row2021.columns = pd.PeriodIndex(['2021'], freq='A')
+row2021 = row2021.T
+df_pop = pd.concat([df_pop, row2021])
+df_pop = df_pop.loc[df_house.index,'常住人口']['常住人口']
+df_apc = df_house.cumsum() / df_pop
 axes[1].bar(df_apc.index.strftime("%Y"), df_apc)
 axes[1].set_title("累计住宅销售面积分摊到常住人口（平米/人）")
 axes[1].set_ylabel("面积（平米）")
