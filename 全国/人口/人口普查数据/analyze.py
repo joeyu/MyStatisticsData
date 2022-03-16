@@ -44,13 +44,13 @@ for ci in cities:
     cnt_15_64 = df[ci, '性别合计'].loc[:,'15-19':'60-64'].sum(axis=1)
     cnt_65_plus = df[ci, '性别合计'].loc[:,'65-69':'100+'].sum(axis=1)
     df_ci = pd.DataFrame({'<=15岁': cnt_15_minus, '15-64岁': cnt_15_64, '>=65岁': cnt_65_plus})
-    df_ci.index = [ci]
+    df_ci.index = pd.MultiIndex.from_product([[ci], df_ci.index])
     df_cities = pd.concat([df_cities, df_ci], axis = 0)
     df_ci_pct = pd.DataFrame({'<=15岁': cnt_15_minus / cnt_total, '15-64岁': cnt_15_64 / cnt_total, '>=65岁': cnt_65_plus / cnt_total}) * 100
-    df_ci_pct.index = [ci]
+    df_ci_pct.index = pd.MultiIndex.from_product([[ci], df_ci_pct.index])
     df_pct_cities = pd.concat([df_pct_cities, df_ci_pct], axis = 0)
 
-fig, axes = plt.subplots(2, 1, sharex = True)
+fig, axes = plt.subplots(2, 1)
 ax = df_cities.plot.bar(ax = axes[0], title = "2010年第六次人口普查数据（分地区）年龄分布", ylabel = "人口数")
 df_pct_cities.plot.bar(ax = axes[1], title = "2010年第六次人口普查数据（分地区）年龄分布比分比", ylabel = "占总人数%")
 
