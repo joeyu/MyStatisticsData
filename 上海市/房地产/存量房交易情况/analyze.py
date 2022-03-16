@@ -30,4 +30,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 dfs = msd.load()
-    
+df = dfs
+df_area = df['成交面积', '住宅']
+ax = df_area.plot.bar(title = "上海市二手住宅", ylabel = "平米")
+ax.bar_label(ax.containers[0])

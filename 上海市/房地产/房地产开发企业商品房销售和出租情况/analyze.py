@@ -30,7 +30,33 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-dfs = msd.load()
+df = msd.load()
+df_house = df['商品房销售面积', '住宅', '住宅']
+
+fig, axes = plt.subplots(2, 1, sharex = True)
+# axes[0].bar(df_house.index.strftime("%Y"), df_house, title = "上海住宅销售面积", ylabel = "面积（平米）")
+axes[0].bar(df_house.index.strftime("%Y"), df_house)
+axes[0].set_title("上海住宅销售面积")
+axes[0].set_ylabel("面积（平米）")
+axes[0].bar_label(axes[0].containers[0])
+
+df_house_pct = df_house.pct_change() * 100
+ax_twinx = axes[0].twinx()
+ax_twinx.plot(df_house_pct.index.strftime("%Y"), df_house_pct, color = "r")
+ax_twinx.set_ylabel("年增长率（%）")
+
+# area per capita
+df_pop = msd.load("../../人口/人口.csv")
+df_apc = df_house.cumsum() / df_pop.loc[df_house.index,'常住人口']['常住人口']
+axes[1].bar(df_apc.index.strftime("%Y"), df_apc)
+axes[1].set_title("累计住宅销售面积分摊到常住人口（平米/人）")
+axes[1].set_ylabel("面积（平米）")
+axes[1].bar_label(axes[1].containers[0])
+
+df_apc_pct = df_apc.pct_change() * 100
+ax_twinx = axes[1].twinx()
+ax_twinx.plot(df_apc_pct.index.strftime("%Y"), df_apc_pct, color = "r")
+ax_twinx.set_ylabel("年增长率（%）")
 
 def convert_raw(raw_fp:str = '.'):
     fp = Path(raw_fp).resolve()
