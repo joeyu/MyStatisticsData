@@ -16,6 +16,7 @@ import numpy as np
 from pathlib import Path
 import io
 import json
+from sqlalchemy import column
 
 from sympy import elliptic_f
 
@@ -34,13 +35,24 @@ import MyStatisticsData as msd
 
 dfs = msd.load()
 df = dfs
-cities = df.columns.levels[0]
-cols = pd.MultiIndex.from_product([cities, ['合计'], ['合计']])
-df_cities = df[cols]
-df_cities.columns = df_cities.columns.get_level_values(0)
-df_cities = df_cities.drop('全国', axis = 1)
-df_cities = df_cities.T
-df_cities.plot.bar(grid = True, title = "2010年第六次人口普查数据（分地区）", ylabel = "人口数")
+cities = df.columns.levels[0].drop('全国')
+df_cities = pd.DataFrame()
+df_pct_cities = pd.DataFrame()
+for ci in cities:
+    cnt_total = df[ci, '合计', '合计']
+    cnt_15_minus = df[ci, '小计'].loc[:,'0-4':'10-14'].sum(axis=1)
+    cnt_15_64 = df[ci, '小计'].loc[:,'15-19':'60-64'].sum(axis=1)
+    cnt_65_plus = df[ci, '小计'].loc[:,'65-69':'100+'].sum(axis=1)
+    df_ci = pd.DataFrame({'<=15岁': cnt_15_minus, '15-64岁': cnt_15_64, '>=65岁': cnt_65_plus})
+    df_ci.index = [ci]
+    df_cities = pd.concat([df_cities, df_ci], axis = 0)
+    df_ci_pct = pd.DataFrame({'<=15岁': cnt_15_minus / cnt_total, '15-64岁': cnt_15_64 / cnt_total, '>=65岁': cnt_65_plus / cnt_total}) * 100
+    df_ci_pct.index = [ci]
+    df_pct_cities = pd.concat([df_pct_cities, df_ci_pct], axis = 0)
+
+fig, axes = plt.subplots(2, 1, sharex = True)
+ax = df_cities.plot.bar(ax = axes[0], title = "2010年第六次人口普查数据（分地区）年龄分布", ylabel = "人口数")
+df_pct_cities.plot.bar(ax = axes[1], title = "2010年第六次人口普查数据（分地区）年龄分布比分比", ylabel = "占总人数%")
 
 
 #df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
