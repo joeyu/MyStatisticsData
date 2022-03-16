@@ -32,14 +32,28 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-#df = msd.load(['上海市税收收入统计情况_2021年.csv', '上海市税收收入统计情况_2005年.csv'])
 dfs = msd.load()
-df_old = dfs['包括外籍家庭佣工', '总计'].loc[:,'65-69':'100+']
-df_total = dfs['包括外籍家庭佣工', '总计', '总计']
-df_old_pct = df_old.div(df_total, axis = 'index') * 100
-ax = df_old_pct.plot.area(grid = True, title = '香港老龄人口数百分比', ylabel = '百分比')
-# ax.set_ylabel("百分比%")
-# plt.show()
+fig, axes = plt.subplots(2, 1)
+df_14_minus = dfs['包括外籍家庭佣工', '男女合计'].loc[:,'0-4':'10-14'].sum(axis = 1)
+df_15_64 = dfs['包括外籍家庭佣工', '男女合计'].loc[:,'15-19':'60-64'].sum(axis = 1)
+df_65_plus = dfs['包括外籍家庭佣工', '男女合计'].loc[:,'65-69':'100+']
+df_all = pd.DataFrame({'<15岁': df_14_minus, '15-64岁': df_15_64, '65+岁': df_65_plus.sum(axis=1)})
+ax = df_all.plot.bar(ax = axes[0], grid = True, title = '香港老龄人口数百分比', ylabel = '百分比')
+
+df_total = dfs['包括外籍家庭佣工', '男女合计', '年龄合计']
+ax = df_65_plus.plot.bar(ax = axes[1], grid = True, title = '香港老龄人人数', ylabel = '人数')
+for container in ax.containers:
+    ax.bar_label(container)
+
+df_65_plus_pct = df_65_plus.div(df_total, axis = 'index') * 100
+df_65_plus_pct = df_65_plus_pct.sum(axis = 1)
+ax = ax.twinx()
+ax.plot(df_65_plus_pct.index.strftime('%Y'), df_65_plus_pct, color = 'k', linestyle = 'dashed', marker='o')
+ax.set_ylabel("65岁以上占百分比（%）")
+
+
+
+
 
 #df = pd.read_csv("raw/D5211101C2011XXXXC.csv", index_col = [0, 1], header = [0])
 #dd = pd.DataFrame()

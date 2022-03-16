@@ -34,11 +34,27 @@ import MyStatisticsData as msd
 
 dfs = msd.load()
 df = dfs
-s_65_plus = df['常住人口'].loc[:,'65-69':].sum(axis=1)
-s_15_minus = df['常住人口'].loc[:,'0-4':'10-14'].sum(axis=1)
-s_total = df['常住人口','合计']
-df_combined = pd.DataFrame({'总常住人口数': s_total, '小于15岁': s_15_minus, '65岁+' : s_65_plus})
-df_combined.plot.bar(grid = True, title = "上海历年人口普查常住人口数", ylabel = "人口数")
+fig, axes = plt.subplots(2, 1)
+df_65_plus = df['常住人口'].loc[:,'65-69':'80+']
+df_15_minus = df['常住人口'].loc[:,'0-4':'10-14']
+df_total = df['常住人口','合计']
+df_all = pd.DataFrame({'总常住人口数': df_total, '小于15岁': df_15_minus.sum(axis=1), '65岁+' : df_65_plus.sum(axis=1)})
+ax = df_all.plot.bar(ax = axes[0], grid = True, title = "上海人口普查常住人口数", ylabel = "人口数")
+
+ax = df_65_plus.plot.bar(ax = axes[1], grid = True, title = '上海老龄人人数', ylabel = '人数')
+for container in ax.containers:
+    ax.bar_label(container)
+
+df_65_plus_pct = df_65_plus.div(df_total, axis = 'index') * 100
+df_65_plus_pct = df_65_plus_pct.sum(axis = 1).apply(lambda x: round(x,1))
+ax = ax.twinx()
+ax.plot(df_65_plus_pct.index.strftime('%Y'), df_65_plus_pct, color = 'k', linestyle = 'dashed', marker='o')
+ax.set_ylabel("65岁以上占百分比（%）")
+for i, v in df_65_plus_pct.iteritems():
+    if not v:
+        continue
+    i = i.strftime('%Y')
+    ax.text(i, v + 0.2, v)
 
 #df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
 #df1 = df1.drop(df1.columns[-1], axis = 1)
