@@ -39,10 +39,10 @@ cities = df.columns.levels[0].drop('全国')
 df_cities = pd.DataFrame()
 df_pct_cities = pd.DataFrame()
 for ci in cities:
-    cnt_total = df[ci, '合计', '合计']
-    cnt_15_minus = df[ci, '小计'].loc[:,'0-4':'10-14'].sum(axis=1)
-    cnt_15_64 = df[ci, '小计'].loc[:,'15-19':'60-64'].sum(axis=1)
-    cnt_65_plus = df[ci, '小计'].loc[:,'65-69':'100+'].sum(axis=1)
+    cnt_total = df[ci, '男女合计', '合计']
+    cnt_15_minus = df[ci, '男女合计'].loc[:,'0-4':'10-14'].sum(axis=1)
+    cnt_15_64 = df[ci, '男女合计'].loc[:,'15-19':'60-64'].sum(axis=1)
+    cnt_65_plus = df[ci, '男女合计'].loc[:,'65-69':'100+'].sum(axis=1)
     df_ci = pd.DataFrame({'<=15岁': cnt_15_minus, '15-64岁': cnt_15_64, '>=65岁': cnt_65_plus})
     df_ci.index = [ci]
     df_cities = pd.concat([df_cities, df_ci], axis = 0)
