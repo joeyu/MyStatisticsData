@@ -32,11 +32,15 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-#dfs = msd.load()
-df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
-df1 = df1.drop(df1.columns[-1], axis = 1)
-cols = pd.MultiIndex.from_arrays([['一般公共预算收入', '一般公共预算收入'], ['税收收入', '非税收入'], ['税收收入', '非税收入']])
-df1.columns = cols
-merged_df = df0.reset_index().merge(df1, how="left").set_index('index')
+dfs = msd.load()
+df = dfs
+major_taxes = ['个人所得税', '企业所得税', '增值税', '房产税', '契税', '证券交易印花税']
+df_major_taxes = df['一般公共预算收入', '税收收入'].loc[:,major_taxes]
+df_major_taxes.plot.bar(title = "上海历年主要税收收入", ylabel = "收入（元）")
+# df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
+# df1 = df1.drop(df1.columns[-1], axis = 1)
+# cols = pd.MultiIndex.from_arrays([['一般公共预算收入', '一般公共预算收入'], ['税收收入', '非税收入'], ['税收收入', '非税收入']])
+# df1.columns = cols
+# merged_df = df0.reset_index().merge(df1, how="left").set_index('index')
 
     
