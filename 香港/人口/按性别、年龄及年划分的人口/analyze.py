@@ -46,10 +46,15 @@ for container in ax.containers:
     ax.bar_label(container)
 
 df_65_plus_pct = df_65_plus.div(df_total, axis = 'index') * 100
-df_65_plus_pct = df_65_plus_pct.sum(axis = 1)
+df_65_plus_pct = df_65_plus_pct.sum(axis = 1).apply(lambda x: round(x, 1))
 ax = ax.twinx()
 ax.plot(df_65_plus_pct.index.strftime('%Y'), df_65_plus_pct, color = 'k', linestyle = 'dashed', marker='o')
 ax.set_ylabel("65岁以上占百分比（%）")
+for i, v in df_65_plus_pct.iteritems():
+    if not v:
+        continue
+    i = i.strftime('%Y')
+    ax.text(i, v + 0.2, v)
 
 
 

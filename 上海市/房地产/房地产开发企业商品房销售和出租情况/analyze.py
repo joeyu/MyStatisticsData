@@ -33,7 +33,7 @@ import MyStatisticsData as msd
 df = msd.load()
 df_house = df['商品房销售面积', '住宅', '合计']
 
-fig, axes = plt.subplots(2, 1, sharex = True)
+fig, axes = plt.subplots(2, 1)
 # axes[0].bar(df_house.index.strftime("%Y"), df_house, title = "上海住宅销售面积", ylabel = "面积（平米）")
 axes[0].bar(df_house.index.strftime("%Y"), df_house)
 axes[0].set_title("上海住宅销售面积")
@@ -42,51 +42,33 @@ axes[0].bar_label(axes[0].containers[0])
 
 df_house_pct = df_house.pct_change() * 100
 ax_twinx = axes[0].twinx()
-ax_twinx.plot(df_house_pct.index.strftime("%Y"), df_house_pct, color = "r")
+ax_twinx.plot(df_house_pct.index.strftime("%Y"), df_house_pct, color = "r", linestyle="--")
 ax_twinx.set_ylabel("年增长率（%）")
 
 # area per capita
 df_pop = msd.load("../../人口/人口.csv")
-row2021 = df_pop.loc['2020'].to_frame()
-row2021.columns = pd.PeriodIndex(['2021'], freq='A')
-row2021 = row2021.T
-df_pop = pd.concat([df_pop, row2021])
+index = df_pop.index
+index = index.append(pd.PeriodIndex(['2021'], freq='A'))
+df_pop = df_pop.reindex(index, method = 'nearest')
+
 df_pop = df_pop.loc[df_house.index,'常住人口']['常住人口']
-df_apc = df_house.cumsum() / df_pop
-axes[1].bar(df_apc.index.strftime("%Y"), df_apc)
-axes[1].set_title("累计住宅销售面积分摊到常住人口（平米/人）")
-axes[1].set_ylabel("面积（平米）")
-axes[1].bar_label(axes[1].containers[0])
+df_house_cumsum = df_house.cumsum()
+ax = axes[1]
+ax.bar(df_house_cumsum.index.strftime("%Y"), df_house_cumsum)
+ax.set_title("累计住宅销售面积，以及常住人口人均面积")
+ax.set_ylabel("人均面积（平米/人）")
+ax.bar_label(axes[1].containers[0])
+ax.set_ylim(ax.get_ylim()[0], df_house_cumsum.max() * 2)
 
-df_apc_pct = df_apc.pct_change() * 100
+#df_apc_pct = df_apc.pct_change() * 100
+df_apc = (df_house_cumsum / df_pop).round(1)
 ax_twinx = axes[1].twinx()
-ax_twinx.plot(df_apc_pct.index.strftime("%Y"), df_apc_pct, color = "r")
-ax_twinx.set_ylabel("年增长率（%）")
+ax_twinx.plot(df_apc.index.strftime("%Y"), df_apc, color = "r", linestyle="--", marker = 'o')
+ax_twinx.set_ylabel("常住人口人均面积（平米/人）")
+for k, v in df_apc.iteritems():
+    k = k.strftime('%Y')
+    ax_twinx.text(k, v+0.4, v)
 
-def convert_raw(raw_fp:str = '.'):
-    fp = Path(raw_fp).resolve()
-    if fp.is_dir():
-        fp_array = fp.glob('*.csv')
-    elif fp.is_file():
-        fp_array = [fp]
-
-    df_array = []
-    for fpath in fp_array:
-        print(f"Reading '{fpath}'...")
-        df = pd.read_csv(fpath)
-        
-        stride = 7
-        df.iloc[0:stride,1:] = df.iloc[0:stride,1:] * 1E4
-        df.iloc[stride:stride*2,1:] = df.iloc[stride:stride*2,1:] * 1E8
-        df.iloc[stride*2:,1:] = df.iloc[stride*2:,1:] * 1E4
-
-        df.iloc[3,1:] = df.iloc[1,1:] - df.iloc[2,1:]
-        df.iloc[stride+3,1:] = df.iloc[stride+1,1:] - df.iloc[stride+2,1:]
-        df.iloc[stride*2+3,1:] = df.iloc[stride*2+1,1:] - df.iloc[stride*2+2,1:]
-
-        df_array.append(df)
-
-    combined_df = pd.concat(df_array, axis = 1)
-    return combined_df
+fig.show()
 
 #df = convert_raw('raw')
