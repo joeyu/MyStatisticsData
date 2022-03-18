@@ -34,7 +34,11 @@ import MyStatisticsData as msd
 
 dfs = msd.load()
 df = dfs
-df[[('常住人口', '常住人口'),('户籍人口', '户籍人口')]].plot.bar(grid = True, title = "上海历年人口", ylabel = "人口数")
+df_pop = df.loc[:,[('常住人口', '合计'),('户籍人口', '合计')]]
+df_pop = df_pop.applymap(lambda x: int(x / 1E4))
+ax = df_pop.plot.bar(grid = True, title = "上海历年人口", ylabel = "人口数（万人）")
+for container in ax.containers:
+    ax.bar_label(container)
 
 #df0, df1 = tuple(msd.load(['./', '../一般公共预算收支']))
 #df1 = df1.drop(df1.columns[-1], axis = 1)
