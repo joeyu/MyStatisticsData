@@ -36,11 +36,13 @@ dfs = msd.load()
 df = dfs
 fig, axes = plt.subplots(2, 1)
 df_total = df[['总计', '一般公共预算收入合计']]
-df_total.plot.bar(ax = axes[0], title = '上海一般公共预算收入', ylabel = "收入（元）")
+ax = df_total.plot.bar(ax = axes[0], title = '上海一般公共预算收入', ylabel = "收入（元）", grid = True)
+ax_twinx = ax.twinx()
+
 
 major_taxes = ['个人所得税', '企业所得税', '增值税', '契税']
 df_major_taxes = df[major_taxes]
-df_major_taxes.plot.bar(ax = axes[1], title = "上海主要税收收入", ylabel = "收入（元）")
+df_major_taxes.plot.bar(ax = axes[1], title = "上海主要税收收入", ylabel = "收入（元）", grid = True)
 
 #fp_array = Path("").glob('*.csv')
 #for fp in fp_array:
