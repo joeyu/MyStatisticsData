@@ -33,6 +33,9 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 dfs = msd.load()
+df = dfs
+df_balance = df[[('一般公共预算收入',   '合计'), ('一般公共预算支出',   '合计')]]
+df_balance.plot.bar(title = '上海市一般公共预算收支')
 
 
 
