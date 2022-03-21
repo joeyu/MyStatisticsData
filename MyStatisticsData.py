@@ -75,8 +75,13 @@ def load(data_fp:str = '.'):
         df_array = df_array[0]
     return df_array
 
+#Get available system fonts
+#import matplotlib.font_manager
+#flist = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+#names = [matplotlib.font_manager.FontProperties(fname=fname).get_name() for fname in flist]
 #Set font to support Chinese
-mpl.rc('font', family = 'SimHei')
+mpl.rc('font', family = 'SimHei', size = 12)
+#mpl.rc('font', family = 'Microsoft New Tai Lue')
 
 def plot_twinx(df1, df2):
     if isinstance(df1, pd.core.series.Series):
