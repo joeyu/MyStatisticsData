@@ -35,8 +35,8 @@ import MyStatisticsData as msd
 dfs = msd.load()
 df = dfs
 fig, axes = plt.subplots(1, 1)
-df_total = df[['总计', '国有土地使用权出让收入']]
-ax = df_total.plot.bar(title = '上海政府性基金收入', ylabel = "收入（元）", grid = True)
+df_total = df[['总计', '政府性基金收入合计', '国有土地使用权出让收入']]
+ax = df_total.plot.bar(ax = axes, title = '上海政府性基金收入', ylabel = "收入（元）", grid = True)
 for container in ax.containers:
     ax.bar_label(container)
 ax_twinx = ax.twinx()

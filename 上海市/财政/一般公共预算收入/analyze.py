@@ -38,9 +38,16 @@ fig, axes = plt.subplots(2, 1)
 df_total = df[['总计', '一般公共预算收入合计']]
 ax = df_total.plot.bar(ax = axes[0], title = '上海一般公共预算收入', ylabel = "收入（元）", grid = True)
 ax_twinx = ax.twinx()
+s_sum_pct = df['一般公共预算收入合计'].pct_change() * 100
+ax_twinx.plot(s_sum_pct.index.strftime('%Y'), s_sum_pct, linestyle = '--', color = 'r')
+for k, v in s_sum_pct.iteritems():
+    k = k.strftime('%Y')
+    v = round(v, 1)
+    ax_twinx.text(k, v + 0.2, v)
 
 
-major_taxes = ['个人所得税', '企业所得税', '增值税', '契税']
+
+major_taxes = ['个人所得税', '企业所得税', '增值税', '契税', '土地增值税']
 df_major_taxes = df[major_taxes]
 df_major_taxes.plot.bar(ax = axes[1], title = "上海主要税收收入", ylabel = "收入（元）", grid = True)
 
