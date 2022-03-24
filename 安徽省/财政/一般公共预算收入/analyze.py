@@ -32,11 +32,11 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-fp_array = Path("raw").glob('*.csv')
-for fp in fp_array:
-    d = pd.read_csv(fp, index_col = [0], header=[0])
-    d = d.T * 1E4
-    d.to_csv(fp.name)
+#fp_array = Path("raw").glob('*.csv')
+#for fp in fp_array:
+#    d = pd.read_csv(fp, index_col = [0], header=[0])
+#    d = d.T * 1E4
+#    d.to_csv(fp.name)
 
 dfs = msd.load()
 df = dfs
