@@ -1,5 +1,5 @@
 # MyStatisticsData
-Statistics data for analysis and learning of `pandas`.
+Statistics data for analysis of economy and learning of `pandas`.
 
 ## Data file
 Data are stored in .cvs files, which can be loaded by `pandas.read_cvs()`.

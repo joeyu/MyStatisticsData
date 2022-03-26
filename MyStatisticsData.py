@@ -123,3 +123,34 @@ def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
         df.columns = [re.sub(garbages, '', s) for s in df]
         df = df.applymap(lambda x: re.sub(garbages, '', x) if type(x) == str else x)
         df.to_csv(f"{cvs_fp_prefix}_{name}.csv", index=False)
+
+def process_raw(raw_filepath, unit = 1E8):
+    fp = Path(raw_filepath)
+    if fp.is_dir():
+        fp_array = (fp.glob('*.csv'))
+    else:
+        fp_array = [fp]
+
+    for fp in fp_array:
+        d = pd.read_csv(fp, index_col = [0], header=[0])
+        d = d.T * unit
+        d.to_csv(fp.name)
+
+def plot_bar(df, **kwargs):
+    if isinstance(df, pd.core.series.Series):
+        df = pd.DataFrame(df)
+    
+    ax = df.plot.bar(**kwargs)
+    for container in ax.containers:
+        ax.bar_label(container)
+
+    return ax
+
+def plot(ser, **kwargs):
+    ax = kwargs.pop('ax')
+    ylabel = kwargs.pop('ylabel', None)
+    ax.plot(ser.index.strftime('%Y'), ser, **kwargs)
+    ax.set_ylabel(ylabel)
+    for i, v in ser.iteritems():
+        i = i.strftime('%Y')
+        ax.text(i, v + 0.2, v)
