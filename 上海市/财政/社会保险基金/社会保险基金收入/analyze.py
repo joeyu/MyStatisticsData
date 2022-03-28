@@ -32,33 +32,23 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-fp_array = Path("raw").glob('*.csv')
-for fp in fp_array:
-    d = pd.read_csv(fp, index_col = [0], header=[0])
-    d = d.T * 1E8
-    d.to_csv(fp.name)
-
 dfs = msd.load()
 df = dfs
 fig, axes = plt.subplots(2, 1)
-df_total = df[['社会保险基金收入合计', '中央调剂资金收入']]
-ax = df_total.plot.bar(ax = axes[0], title = '上海社保收入', ylabel = "收入（元）", grid = True)
-for container in ax.containers:
-    ax.bar_label(container)
-ax_twinx = ax.twinx()
-s_income = df['社会保险基金收入合计']
-s_income_pct = s_income.pct_change() * 100
-ax_twinx.plot(s_income_pct.index.strftime('%Y'), s_income_pct, linestyle = '--', color = 'r')
-for k, v in s_income_pct.iteritems():
-    v = round(v, 2)
-    k = k.strftime('%Y')
-    ax_twinx.text(k, v + 0.1, v)
-ax_twinx.set_ylabel("年增长百分比（%）")
+df_total = df['社会保险基金收入合计']
+#df_total.columns = df_total.columns.droplevel()
+ax = msd.plot_bar(df_total, ax = axes[0], title = '上海社保收入', ylabel = "收入（元）", grid = True)
+s_income = df_total['社会保险基金收入合计']
+s_income_pct = s_income.pct_change().apply(lambda x: round(100 * x, 1))
+msd.plot(s_income_pct, ax = ax.twinx(), ylabel = "年增长百分比（%）", linestyle = '--', color = 'r')
 
-df_indiv = df[['企业职工基本养老保险基金收入','机关事业单位基本养老保险基金收入', '职工基本医疗保险基金收入']]
-ax = df_indiv.plot.bar(ax = axes[1], title = "上海社保收入（分项）", ylabel = "收入（元）", grid = True)
-for container in ax.containers:
-    ax.bar_label(container)
+df_subsidy = df['中央调剂资金收入']
+s = df.groupby(level = 1, axis = 1).sum()['财政补贴收入']
+s.name = '地方财政补贴收入'
+df_subsidy = pd.concat([df_subsidy, s], axis = 1)
+ax = msd.plot_bar(df_subsidy, ax = axes[1], title = "财政补贴合计", ylabel = "财政补贴合计（元）", grid = True)
+#s_subsidy_pct = s_subsidy.pct_change().apply(lambda x: round(100 * x, 1))
+#msd.plot(s_subsidy_pct, ax = ax.twinx(), ylabel = "年增长百分比（%）", linestyle = '--', color = 'r')
 
 #fig, axes = plt.subplots(1, 1)
 #s_ratio = df['企业职工基本养老保险基金收入'] / df['机关事业单位基本养老保险基金收入']

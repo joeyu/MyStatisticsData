@@ -42,7 +42,6 @@ def load(data_fp:str = '.'):
         df_freq_groups = {}
         for fp in fp_array:
             logging.info(f"Reading '{fp}'...")
-            print(f"Reading '{fp}'...")
             if 'header' in meta:
                 header = meta['header']
             else:
@@ -132,7 +131,17 @@ def process_raw(raw_filepath, unit = 1E8):
         fp_array = [fp]
 
     for fp in fp_array:
-        d = pd.read_csv(fp, index_col = [0], header=[0])
+        with open(fp, encoding='utf8') as f:
+            items = f.readline().split(',')
+            for i, v in enumerate(items):
+                try:
+                    pd.Period(v)
+                except:
+                    continue
+                else:
+                    break
+        index_col = list(range(i))
+        d = pd.read_csv(fp, index_col = index_col, header=[0])
         d = d.T * unit
         d.to_csv(fp.name)
 
@@ -154,3 +163,5 @@ def plot(ser, **kwargs):
     for i, v in ser.iteritems():
         i = i.strftime('%Y')
         ax.text(i, v + 0.2, v)
+    
+    return ax
