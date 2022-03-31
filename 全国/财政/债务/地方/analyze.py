@@ -47,7 +47,7 @@ df_balance_pct = df_balance.pct_change().apply(lambda x: round(100 * x, 1))
 df_balance_pct.plot(ax = axes[1], grid = True, title = '地方政府债务余额年增长率（代表地区）', ylabel = '年增长率（%）')
 
 fig, ax = plt.subplots(1, 1)
-df_gpbr = msd.load('../../一般公共预算收入/地方一般公共预算收入/')
+df_gpbr = msd.load('../../一般公共预算收入/地方/分地区')
 df_gf = msd.load('../../政府性基金收入/地方政府性基金收入/')
 df_cc = (df_liability / ( df_gpbr + df_gf)).applymap(lambda x: round(x, 2))
 ax = msd.plot_bar(df_cc.loc[['2018', '2019', '2020']].T, ax = ax, title = '2018/2019/2020年地方政府偿债能力 —— 债务余额 / (一般公共预算收入 + 政府性基金收入)')
@@ -58,7 +58,7 @@ s_liability_sum_pct = s_liability_sum.pct_change().apply(lambda x: round(100 * x
 ax = msd.plot_bar(s_liability_sum, ax = axes[0], title = '地方政府债务余额合计', ylabel = '债务余额（元）')
 msd.plot(s_liability_sum_pct, ax = ax.twinx(), ylabel = "年增长率（%）", linestyle = "--", color = 'r')
 
-s_gpbr_sum = df_gpbr.sum(axis = 1)
+s_gpbr_sum = msd.load('../../一般公共预算收入/地方')['地方本级收入']
 s_gf_sum = df_gf.sum(axis = 1)
 s_cc_sum = (s_liability_sum / (s_gpbr_sum + s_gf_sum)).apply(lambda x: round(x, 2))
 s_cc_sum_pct = s_cc_sum.pct_change().apply(lambda x: round(100 * x, 1))
