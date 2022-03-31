@@ -48,7 +48,7 @@ df_balance_pct.plot(ax = axes[1], grid = True, title = '地方政府债务余额
 
 fig, ax = plt.subplots(1, 1)
 df_gpbr = msd.load('../../一般公共预算收入/地方/分地区')
-df_gf = msd.load('../../政府性基金收入/地方政府性基金收入/')
+df_gf = msd.load('../../政府性基金收入/地方/分地区')
 df_cc = (df_liability / ( df_gpbr + df_gf)).applymap(lambda x: round(x, 2))
 ax = msd.plot_bar(df_cc.loc[['2018', '2019', '2020']].T, ax = ax, title = '2018/2019/2020年地方政府偿债能力 —— 债务余额 / (一般公共预算收入 + 政府性基金收入)')
 
