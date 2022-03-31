@@ -32,28 +32,11 @@ while True:
 sys.path.append(str(d))
 import MyStatisticsData as msd
 
-#fp_array = Path("raw").glob('*.csv')
-#for fp in fp_array:
-#    d = pd.read_csv(fp, index_col = [0], header=[0])
-#    d = d.T * 1E8
-#    d.to_csv(fp.name)
-
 dfs = msd.load()
 df = dfs
-df_balance = df[['上海市', '深圳市', '重庆市', '广东省', '江苏省', '安徽省']]
 fig, axes = plt.subplots(2, 1)
-ax = df_balance.plot.bar(ax = axes[0], title = '地方政府一般公共预算收入', ylabel = '账务余额（元）')
-for container in ax.containers:
-    ax.bar_label(container)
-    
-#ax = ax.twinx()
-#df_balance = df_balance.drop('深圳市', axis = 1)
-df_balance_pct = df_balance.pct_change() * 100
-df_balance_pct = df_balance_pct.apply(lambda x: round(x, 1))
-df_balance_pct.plot(ax = axes[1], grid = True, title = '地方政府一般公共预算收入年增长率', ylabel = '年增长率（%）')
-#ax.set_ylabel("年增长率（%）")
-#for i, v in df_balance_pct.iteritems():
-#    i = i.strftime('%Y')
-#    ax.text(i, v + 0.2, v)
-
-    
+df_income = df[["地方本级收入", "中央对地方转移支付"]]
+ax = msd.plot_bar(df_income, ax = axes[0], title = "地方政府一般公共预算", ylabel = "收入（元）")
+ax_twinx = ax.twinx()
+df_income_pct = df_income.pct_change().applymap(lambda x: round(100 * x, 1))
+msd.plot(df_income_pct, ax = axes[1], ylabel = "年增长（%）", linestyle = '--')

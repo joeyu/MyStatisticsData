@@ -114,7 +114,7 @@ def data_and_pct_change(data):
     pct.name = "Change%"
     return pd.concat([data, pct], axis = 1)
 
-def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
+def excelto_cvs(excel_fp:str, cvs_fp_prefix:str):
     sheet_df_dicts = pd.read_excel(excel_fp, sheet_name=None)
 
     garbages = r"[  　]";
@@ -123,7 +123,7 @@ def excel_to_cvs(excel_fp:str, cvs_fp_prefix:str):
         df = df.applymap(lambda x: re.sub(garbages, '', x) if type(x) == str else x)
         df.to_csv(f"{cvs_fp_prefix}_{name}.csv", index=False)
 
-def process_raw(raw_filepath, unit = 1E8):
+def read_raw(raw_filepath, unit = 1E8):
     fp = Path(raw_filepath)
     if fp.is_dir():
         fp_array = (fp.glob('*.csv'))
@@ -155,13 +155,21 @@ def plot_bar(df, **kwargs):
 
     return ax
 
-def plot(ser, **kwargs):
+def plot(df, **kwargs):
+    if isinstance(df, pd.core.series.Series):
+        df = pd.DataFrame(df)
     ax = kwargs.pop('ax')
     ylabel = kwargs.pop('ylabel', None)
-    ax.plot(ser.index.strftime('%Y'), ser, **kwargs)
     ax.set_ylabel(ylabel)
-    for i, v in ser.iteritems():
-        i = i.strftime('%Y')
-        ax.text(i, v + 0.2, v)
+    for col in df:
+        ser = df[col]
+        ax.plot(ser.index.strftime('%Y'), ser, label = col, **kwargs)
+        for k, v in ser.iteritems():
+            k = k.strftime('%Y')
+            ax.text(k, v + 0.2, v)
+    
+    axes = ax.get_shared_x_axes().get_siblings(ax)
+    if len(axes) == 1 or axes[-1] == ax:
+        ax.legend()
     
     return ax
