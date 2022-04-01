@@ -59,7 +59,7 @@ ax = msd.plot_bar(s_liability_sum, ax = axes[0], title = '地方政府债务余�
 msd.plot(s_liability_sum_pct, ax = ax.twinx(), ylabel = "年增长率（%）", linestyle = "--", color = 'r')
 
 s_gpbr_sum = msd.load('../../一般公共预算收入/地方')['地方本级收入']
-s_gf_sum = df_gf.sum(axis = 1)
+s_gf_sum = msd.load('../../政府性基金收入/地方')['地方本级收入']
 s_cc_sum = (s_liability_sum / (s_gpbr_sum + s_gf_sum)).apply(lambda x: round(x, 2))
 s_cc_sum_pct = s_cc_sum.pct_change().apply(lambda x: round(100 * x, 1))
 ax = msd.plot_bar(s_cc_sum, ax = axes[1], title = "地方政府偿债能力 —— 债务余额合计 / (一般公共预算收入合计 + 政府性基金收入合计)")
