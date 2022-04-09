@@ -154,7 +154,7 @@ for label in ax.get_xticklabels(which = 'both'):
 x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
 y0, y1 = ax.get_ylim()
 y = int((y1 - y0) * 0.8)
-s = f'$I_{{(t)}} = {a:.2f}e^{{{b:.3f}t}}{c:+.1f}$'
+s = f'$I_T(t) = {a:.2f}e^{{{b:.3f}t}}{c:+.1f}$'
 # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
 #arrowprops=dict(facecolor='ivory', shrink=0.05)
 arrowprops=None
@@ -200,11 +200,12 @@ ax_twinx.set_ylim(y0, y1)
 for k, v in zip(rate_index, rate):
     ax_twinx.text(k, v + 0.01, round(v, 3), color = 'purple', ha = 'center')
 
-s = r'$\frac{I^T_{(t+1)}}{I^T_{(t)}}$'
+# s = r'$\frac{I^T_{(t+1)}}{I^T_{(t)}}$'
+s = r'$e^{b_T}$'
 #arrowprops=dict(facecolor='ivory', shrink=0.05)
 arrowprops=None
 bbox=dict(facecolor='beige')
-# ax_twinx.annotate(s, xy = (rate_index[0], rate[0]), xycoords = 'data', xytext = (rate_index[0] - timedelta(2), rate[0] + 0.1), textcoords = 'data', arrowprops = arrowprops, color = 'purple', bbox = bbox, size = 20)
+ax_twinx.annotate(s, xy = (rate_index[0], rate[0]), xycoords = 'data', xytext = (rate_index[0] - timedelta(2), rate[0] + 0.1), textcoords = 'data', arrowprops = arrowprops, color = 'purple', bbox = bbox, size = 20)
 
 ax = legend.axes
 handles, labels = ax.get_legend_handles_labels()
