@@ -68,7 +68,8 @@ new_cases_merged = {
      '2022-04-05': 2771,
      '2022-04-06': 2436,
      '2022-04-07': 2266,
-     '2022-04-08': 954
+     '2022-04-08': 954,
+     '2022-04-09': 997,
 }
 
 new_cases_merged = {datetime.strptime(dt, '%Y-%m-%d'): v for dt, v in new_cases_merged.items()}
