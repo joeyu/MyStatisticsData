@@ -48,7 +48,7 @@ ser_new_cases = df['广州市'].dropna().astype('int64')
 new_new_cases = {}
 
 def crawl(ser_new_cases):
-    new_cases = {}
+    new_new_cases = {}
     profile = webdriver.FirefoxProfile()
     profile.set_preference("network.proxy.type", 0)
     profile.update_preferences()
@@ -58,7 +58,6 @@ def crawl(ser_new_cases):
         ul_list_xpath = "/html/body/div/div[3]/div[3]/div[2]/ul"
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, ul_list_xpath)))
         li_list = driver.find_element_by_xpath(ul_list_xpath).find_elements_by_tag_name('li')
-        end = False
         for li in li_list:
             try:
                 a = li.find_element_by_tag_name('a')
@@ -67,7 +66,7 @@ def crawl(ser_new_cases):
             if a.get_attribute('title').find('广州市新冠肺炎疫情情况') == -1:
                 continue
             #dt = li.find_element_by_tag_name('em').text
-            print(li.text)
+            #print(li.text)
             a.click()
             WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
             driver.switch_to.window(driver.window_handles[1])
@@ -75,20 +74,18 @@ def crawl(ser_new_cases):
             WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, div_xpath)))
             div = driver.find_element_by_xpath(div_xpath)
             s = div.text
-            #print(s)
+            print(s)
             pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?全市新增本土确诊病例(\d+)例(?:（其中(\d+)例为此前报告的无症状感染者转确诊）)?.+?本土无症状感染者(\d+)例")
             m = pat.search(s)
             print(m.groups())
             if m:
                 month, day, new_cases1, new_cases2, new_cases3 = (int(x) if x else 0 for x in m.groups())
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
-            new_cases = {}
-            new_cases[dt] = new_cases.setdefault(dt, 0)
-            new_cases[dt] += new_cases1 - new_cases2 + new_cases3
-
             if dt in ser_new_cases:
                 break
-            new_new_cases = {**new_new_cases, **new_cases}
+            new_new_cases[dt] = new_new_cases.setdefault(dt, 0)
+            new_new_cases[dt] += new_cases1 - new_cases2 + new_cases3
+
             time.sleep(1)
             driver.close()
             driver.switch_to.window(driver.window_handles[0])

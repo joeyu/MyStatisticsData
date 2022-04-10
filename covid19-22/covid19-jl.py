@@ -69,23 +69,17 @@ def crawl(ser_new_cases):
             s = div.text
             print(s)
             pat = re.compile(r"(\d{1,2})月(\d{1,2})日.+?全省新增本地确诊病例(?:（轻型）)?(\d+)例.+?(?:新增本地)?无症状感染者(\d+)例")
-            match = pat.findall(s)
-            new_cases = {}
-            for m in match:
-                print(m)
-                if len(m) == 4:
-                    month, day, new_case1, new_case2 = (int(x) for x in m)
-                elif len(m) == 2:
-                    month, day = (int(x) for x in m)
-                    new_case1, new_case2 = 0, 0
+            m= pat.search(s)
+            print(m.groups())
+            if m:
+                month, day, new_case1, new_case2 = (int(x) for x in m.groups())
 
-                dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
-                new_cases[dt] = new_cases.setdefault(dt, 0)
-                new_cases[dt] += new_case1 + new_case2
-
+            dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
             if dt in ser_new_cases:
                 break
-            new_new_cases = {**new_new_cases, **new_cases}
+            new_new_cases[dt] = new_new_cases.setdefault(dt, 0)
+            new_new_cases[dt] += new_case1 + new_case2
+
             time.sleep(1)
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
