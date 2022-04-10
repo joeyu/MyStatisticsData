@@ -65,7 +65,8 @@ new_cases_merged = {
     '2022-04-05': 17037,
     '2022-04-06': 19967,
     '2022-04-07': 20899,
-    '2022-04-08': 23204
+    '2022-04-08': 23204,
+    '2022-04-09': 24752,
 }
 
 new_cases_merged = {datetime.strptime(dt, '%Y-%m-%d'): v for dt, v in new_cases_merged.items()}
@@ -159,7 +160,7 @@ s = f'$I_T(t) = {a:.2f}e^{{{b:.3f}t}}{c:+.1f}$'
 #arrowprops=dict(facecolor='ivory', shrink=0.05)
 arrowprops=None
 bbox=dict(facecolor='beige')
-ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.8, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
+ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.75, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
 
 arrowprops=dict(facecolor='cyan', shrink=0.05)
 bbox=dict(facecolor='beige')
@@ -201,7 +202,7 @@ for k, v in zip(rate_index, rate):
     ax_twinx.text(k, v + 0.01, round(v, 3), color = 'purple', ha = 'center')
 
 # s = r'$\frac{I^T_{(t+1)}}{I^T_{(t)}}$'
-s = r'$e^{b_T}$'
+s = r'$e^{b(t)}$'
 #arrowprops=dict(facecolor='ivory', shrink=0.05)
 arrowprops=None
 bbox=dict(facecolor='beige')
