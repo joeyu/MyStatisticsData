@@ -154,8 +154,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
         offset2 = offset if v > ser_new_cases.get(k, 0) else -offset * 2
         ax.text(k, v + offset2, v, color = 'b', ha='center')  
 
-
-    legend = ax.legend(loc='upper left')
+    ax.legend(loc='upper left')
 
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m-%d'))
@@ -166,7 +165,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
     x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
     y0, y1 = ax.get_ylim()
     y = int((y1 - y0) * 0.8)
-    s = f'$\\frac{{\mathrm{{d}}I_T}}{{\mathrm{{d}}t}} = {a:.2f}e^{{{b:.3f}t}}{c:+.1f}$'
+    s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
     # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
     #arrowprops=dict(facecolor='ivory', shrink=0.05)
     arrowprops=None
@@ -193,7 +192,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
         rate_index = ser_new_cases[start:].index
         ax_twinx = ax.twinx()
         line, = ax_twinx.plot(rate_index.to_timestamp(), rate, color = 'purple', linestyle = '--', marker = 'x')
-        ax_twinx.set_ylabel("日增长率", fontsize = 15, color = 'purple')
+        ax_twinx.set_ylabel("日增长倍数", fontsize = 15, color = 'purple')
         # y0, y1 = ax_twinx.get_ylim()
         rate_max = rate.max()
         rate_min = rate.min()
@@ -209,12 +208,12 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
         #arrowprops=dict(facecolor='ivory', shrink=0.05)
         arrowprops=None
         bbox=dict(facecolor='beige')
-        ax_twinx.annotate(s, xy = (rate_index[0], rate[0]), xycoords = 'data', xytext = (rate_index[0] - timedelta(2), rate[0] + 0.1), textcoords = 'data', arrowprops = arrowprops, color = 'purple', bbox = bbox, size = 20)
+        ax_twinx.annotate(s, xy = (rate_index[0], rate[0]), xycoords = 'data', xytext = (-80, 50), textcoords = 'offset points', arrowprops = arrowprops, color = 'purple', bbox = bbox, size = 20)
 
         legend = ax.get_legend()
         handles, labels = ax.get_legend_handles_labels()
         handles.append(line)
-        labels.append("拟合数日增长率")
+        labels.append("拟合数日增长倍数")
         legend._legend_box = None
         legend._init_legend_box(handles, labels)
         legend._set_loc(legend._loc)

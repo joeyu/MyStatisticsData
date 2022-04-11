@@ -97,7 +97,7 @@ df = df.combine_first(ser_new_cases.to_frame(name = '广州市'))
 fig, axes = plt.subplots(1, 1)
 def fit_func(x, a, b, c):
     return a * np.exp(b * x) + c
-ax = msd.covid19_plot(ser_new_cases, axes, fit_func, 2)
+ax = msd.covid19_plot(ser_new_cases, axes, fit_func, 2, '2022-4-10')
 
 # arrowprops=dict(facecolor='cyan', shrink=0.05)
 # bbox=dict(facecolor='beige')
