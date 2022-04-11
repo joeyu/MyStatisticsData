@@ -45,7 +45,6 @@ import MyStatisticsData as msd
 
 df = msd.load()
 ser_new_cases = df['广州市'].dropna().astype('int64')
-new_new_cases = {}
 
 def crawl(ser_new_cases):
     new_new_cases = {}
@@ -92,19 +91,19 @@ def crawl(ser_new_cases):
 
     return pd.concat([ser_new_cases, pd.Series(new_new_cases)]).sort_index()
 # df = df.drop('广州市', axis = 1).merge(ser_new_cases.to_frame(name = '广州市'), how = 'outer', left_index=True, right_index=True)
-#df = pd.concat([df.drop('广州市', axis = 1), ser_new_cases.to_frame(name = '广州市')], axis = 1)
+# df = pd.concat([df.drop('广州市', axis = 1), ser_new_cases.to_frame(name = '广州市')], axis = 1)
 df = df.combine_first(ser_new_cases.to_frame(name = '广州市'))
 
-ax = ser_new_cases.plot(title = "广州市新冠每日新增病例", marker = 'x', color = 'r', label = "历史病例数")
-for k, v in ser_new_cases.iteritems():
-    offset = 0.1
-    ax.text(k, v + offset, v, color = 'r')  
+fig, axes = plt.subplots(1, 1)
+def fit_func(x, a, b, c):
+    return a * np.exp(b * x) + c
+ax = msd.covid19_plot(ser_new_cases, axes, fit_func, 2)
 
-ax.legend()
-
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m-%d'))
-ax.grid(which='both', axis = 'x')
-# ax.grid(which='minor', axis = 'x')
-for label in ax.get_xticklabels(which = 'both'): 
-    label.set_rotation(45)
+# arrowprops=dict(facecolor='cyan', shrink=0.05)
+# bbox=dict(facecolor='beige')
+# x = datetime(2022, 3, 28)
+# y = ser_new_cases[x]
+# ax.annotate("浦东、浦南及毗邻区域封控", xy =(x, y + 4000), xytext = (x - timedelta(0) , y + 10000), arrowprops = arrowprops, bbox = bbox, ha = 'center')
+# x = datetime(2022, 4, 1)
+# y = ser_new_cases[x]
+# ax.annotate("浦西封控", xy =(x, y + 4000), xytext = (x - timedelta(0), y + 10000), arrowprops = arrowprops, bbox = bbox, ha = 'center')
