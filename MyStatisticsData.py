@@ -133,15 +133,21 @@ def plot(df, **kwargs):
     
     return ax
 
-def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
+def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, traceback = None):
     ax = ser_new_cases.plot(ax = ax, title = ser_new_cases.name + '新冠每日新增病例及趋势', marker = 'd', color = 'r', label = "历史每日新增病例数")
     ax.set_xlabel("t", fontsize = 15)    
     ax.set_ylabel("每日新增病例数", fontsize = 15)    
     n_day = np.arange(len(ser_new_cases))
     popt, pcov = curve_fit(fit_func, n_day, ser_new_cases)
-    a, b, c = popt
+    print(f'pcov: {pcov}')
+    if fit_func_type == 'exponential' or fit_func_type == 'quadratic':
+        a, b, c = popt
+        apply_fit_func = lambda x: int(fit_func(x, a, b, c))
+    elif fit_func_type == 'linear':
+        a, b = popt
+        apply_fit_func = lambda x: int(fit_func(x, a, b))
     days = len(ser_new_cases) + trend_days
-    ser_new_cases_fit = pd.Series(np.arange(days)).apply(lambda x: int(a * np.exp(b * x) + c))
+    ser_new_cases_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
     ser_new_cases_fit.index = pd.period_range(ser_new_cases.index[0], periods = days, freq='D')
     ax = ser_new_cases_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
     # x_ticklabels = [x.strftime('%m-%d') for x in ser_new_cases_fit.index]
@@ -165,7 +171,10 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
     x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
     y0, y1 = ax.get_ylim()
     y = int((y1 - y0) * 0.8)
-    s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
+    if fit_func_type == 'exponential':
+        s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
+    elif fit_func_type == 'linear':
+        s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.1ft%+.1f$' % (a, b)
     # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
     #arrowprops=dict(facecolor='ivory', shrink=0.05)
     arrowprops=None
@@ -197,7 +206,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, trend_days = 7, traceback = None):
         rate_max = rate.max()
         rate_min = rate.min()
         rate_residual = rate_max - rate_min
-        y0 = rate_min - rate_residual * 2
+        y0 = rate_min - rate_residual * 3
         y1 = rate_max + rate_residual * 1
         ax_twinx.set_ylim(y0, y1)
         for k, v in zip(rate_index, rate):

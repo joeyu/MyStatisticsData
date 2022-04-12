@@ -89,7 +89,8 @@ def crawl(ser_new_cases):
 # df = df.drop('吉林省', axis = 1).merge(ser_new_cases.to_frame(name = '吉林省'), how = 'outer', left_index=True, right_index=True)
 df = df.combine_first(ser_new_cases.to_frame(name = '吉林省'))
 
-ax = ser_new_cases.plot(title = "吉林省新冠每日新增病例", marker = 'x', color = 'r', label = "历史病例数")
+fig, axes = plt.subplots(1, 1)
+ax = ser_new_cases.plot(ax = axes, title = "吉林省新冠每日新增病例", marker = 'x', color = 'r', label = "历史病例数")
 for k, v in ser_new_cases.iteritems():
     offset = 100
     ax.text(k, v + offset, v, color = 'r')  
