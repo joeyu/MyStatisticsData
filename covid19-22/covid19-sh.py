@@ -87,7 +87,7 @@ def crawl(ser_new_cases):
 
 df = df.combine_first(ser_new_cases.to_frame(name = '上海市'))
 
-ser_new_cases = ser_new_cases[pd.Period('2022-03-25'):]
+ser_new_cases = ser_new_cases[pd.Period('2022-03-23'):]
 fig, axes = plt.subplots(1, 1)
 def linear_fit_func(x, a, b):
     return a * x + b 
@@ -100,9 +100,9 @@ arrowprops=dict(facecolor='cyan', shrink=0.05)
 bbox=dict(facecolor='beige')
 x = pd.Period('2022-03-28')
 y = ser_new_cases[x]
-_, dy = ax.transAxes.transform((0, 0.1))
+_, dy = ax.transAxes.transform((0, 0.08))
 _, dy = ax.transData.inverted().transform((0, dy)) 
 ax.annotate("浦东、浦南及毗邻区域封控", xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
 x = pd.Period('2022-04-01')
 y = ser_new_cases[x]
-ax.annotate("浦西封控", xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
+ax.annotate("浦西封控", xy =(x, y + dy * 3), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')

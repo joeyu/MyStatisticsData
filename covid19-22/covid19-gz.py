@@ -74,7 +74,7 @@ def crawl(ser_new_cases):
             div = driver.find_element_by_xpath(div_xpath)
             s = div.text
             print(s)
-            pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?全市新增本土确诊病例(\d+)例(?:（其中(\d+)例为此前报告的无症状感染者转确诊）)?.+?本土无症状感染者(\d+)例")
+            pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?全市新增本土确诊病例(\d+)例(?:（其中(\d+)例为此前\w+无症状感染者转确诊）)?.+?本土无症状感染者(\d+)例")
             m = pat.search(s)
             print(m.groups())
             if m:
@@ -95,9 +95,11 @@ def crawl(ser_new_cases):
 df = df.combine_first(ser_new_cases.to_frame(name = '广州市'))
 
 fig, axes = plt.subplots(1, 1)
-def fit_func(x, a, b, c):
+def linear_fit_func(x, a, b):
+    return a * x + b 
+def exponential_fit_func(x, a, b, c):
     return a * np.exp(b * x) + c
-ax = msd.covid19_plot(ser_new_cases, axes, fit_func, 2, '2022-4-10')
+ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 2, None)
 
 # arrowprops=dict(facecolor='cyan', shrink=0.05)
 # bbox=dict(facecolor='beige')
