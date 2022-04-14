@@ -133,7 +133,7 @@ def plot(df, **kwargs):
     
     return ax
 
-def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, traceback = None):
+def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, traceback = None, annotations = None):
     ax = ser_new_cases.plot(ax = ax, title = ser_new_cases.name + '新冠每日新增病例及趋势', marker = 'd', color = 'r', label = "历史每日新增病例数")
     ax.set_xlabel("t", fontsize = 15)    
     ax.set_ylabel("每日新增病例数", fontsize = 15)    
@@ -179,7 +179,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, tra
     #arrowprops=dict(facecolor='ivory', shrink=0.05)
     arrowprops=None
     bbox=dict(facecolor='beige')
-    ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.75, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
+    ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.70, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
 
     def fits(new_cases, start):
         bt_array = [] 
@@ -226,5 +226,17 @@ def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, tra
         legend._legend_box = None
         legend._init_legend_box(handles, labels)
         legend._set_loc(legend._loc)
+
+    if annotations:
+        arrowprops=dict(facecolor='cyan', shrink=0.05)
+        bbox=dict(facecolor='beige')
+        for an in annotations:
+            x = an['x']
+            text = an['text']
+            v0, v1 = ser_new_cases[x], ser_new_cases_fit[x]
+            y = v0 if v0 > v1 else v1
+            y0, y1 = ax.get_ylim()
+            dy = (y1 - y0) * 0.04
+            ax.annotate(text, xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
 
     return ax

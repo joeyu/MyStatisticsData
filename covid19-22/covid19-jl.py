@@ -72,13 +72,15 @@ def crawl(ser_new_cases):
             m= pat.search(s)
             print(m.groups())
             if m:
-                month, day, new_case1, new_case2 = (int(x) for x in m.groups())
-
+                month, day, new_cases1, new_cases2 = (int(x) for x in m.groups())
+            pat = re.compile(r"含(\d+)例无症状感染者转为确诊病例")
+            m = pat.findall(s)
+            new_cases3 = np.array(m).astype(int).sum() if m else 0
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
             if dt in ser_new_cases:
                 break
             new_new_cases[dt] = new_new_cases.setdefault(dt, 0)
-            new_new_cases[dt] += new_case1 + new_case2
+            new_new_cases[dt] += new_cases1 + new_cases2 -new_cases3
 
             time.sleep(1)
             driver.close()

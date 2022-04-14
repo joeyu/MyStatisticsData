@@ -56,7 +56,6 @@ def crawl(ser_new_cases):
         ul_list_xpath = "/html/body/div[2]/div[3]/div[2]/div/ul"
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, ul_list_xpath)))
         li_list = driver.find_element_by_xpath(ul_list_xpath).find_elements_by_tag_name('li')
-        end = False
         for li in li_list:
             if li.find_element_by_tag_name('a').get_attribute('title').find('新增本土新冠肺炎确诊病例') == -1:
                 continue
@@ -88,21 +87,13 @@ def crawl(ser_new_cases):
 df = df.combine_first(ser_new_cases.to_frame(name = '上海市'))
 
 ser_new_cases = ser_new_cases[pd.Period('2022-03-23'):]
+annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('2022-03-28')}, 
+               {'text': '浦西封控', 'x': pd.Period('2022-04-01')}]
 fig, axes = plt.subplots(1, 1)
 def linear_fit_func(x, a, b):
     return a * x + b 
 def exponential_fit_func(x, a, b, c):
     return a * np.exp(b * x) + c
-ax = msd.covid19_plot(ser_new_cases, axes, exponential_fit_func, 'exponential', 7, traceback = None)
-# ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 7, traceback = None)
+ax = msd.covid19_plot(ser_new_cases, axes, exponential_fit_func, 'exponential', 7, traceback = None, annotations = annotations)
+# ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 7, traceback = None, annotations = annotations)
 
-arrowprops=dict(facecolor='cyan', shrink=0.05)
-bbox=dict(facecolor='beige')
-x = pd.Period('2022-03-28')
-y = ser_new_cases[x]
-_, dy = ax.transAxes.transform((0, 0.08))
-_, dy = ax.transData.inverted().transform((0, dy)) 
-ax.annotate("浦东、浦南及毗邻区域封控", xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
-x = pd.Period('2022-04-01')
-y = ser_new_cases[x]
-ax.annotate("浦西封控", xy =(x, y + dy * 3), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
