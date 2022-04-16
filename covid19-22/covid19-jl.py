@@ -63,7 +63,7 @@ def crawl(ser_new_cases):
             li.click()
             WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
             driver.switch_to.window(driver.window_handles[1])
-            div_xpath = "/html/body/div[1]/div[3]/div[2]/div"
+            div_xpath = "/html/body/div[1]/div[3]/div[2]/div/div"
             WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, div_xpath)))
             div = driver.find_element_by_xpath(div_xpath)
             s = div.text
@@ -75,6 +75,7 @@ def crawl(ser_new_cases):
                 month, day, new_cases1, new_cases2 = (int(x) for x in m.groups())
             pat = re.compile(r"含(\d+)例无症状感染者转为确诊病例")
             m = pat.findall(s)
+            print(m)
             new_cases3 = np.array(m).astype(int).sum() if m else 0
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
             if dt in ser_new_cases:

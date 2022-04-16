@@ -99,8 +99,8 @@ def linear_fit_func(x, a, b):
     return a * x + b 
 def exponential_fit_func(x, a, b, c):
     return a * np.exp(b * x) + c
-# ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 2, None)
-ax = msd.covid19_plot(ser_new_cases, axes, exponential_fit_func, 'exponential', 2, None)
+ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 2, None)
+# ax = msd.covid19_plot(ser_new_cases, axes, exponential_fit_func, 'exponential', 2, None)
 
 # arrowprops=dict(facecolor='cyan', shrink=0.05)
 # bbox=dict(facecolor='beige')
