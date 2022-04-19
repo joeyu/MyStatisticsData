@@ -68,7 +68,8 @@ def crawl(ser_new_cases):
             div = driver.find_element_by_xpath(div_xpath)
             s = div.text
             #print(s)
-            pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?新增本土新冠肺炎确诊病例(\d+)例.+?无症状感染者(\d+)例.+?(?:其中(\d+)例确诊病例为此前无症状感染者转归)?")
+            # pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?新增本土新冠肺炎确诊病例(\d+)例.+?无症状感染者(\d+)例.+?(?:其中(\d+)例确诊病例为此前无症状感染者转归)?")
+            pat = re.compile(r"2022年(\d{1,2})月(\d{1,2})日.+?新增本土新冠肺炎确诊病例(\d+)例.+?(?:含既往无症状感染者转为确诊病例(\d+)例)?.+?无症状感染者(\d+)例")
             m = pat.search(s)
             print(m.groups())
             if m:
@@ -77,7 +78,8 @@ def crawl(ser_new_cases):
             if dt in ser_new_cases:
                 break
             new_new_cases[dt] = new_new_cases.setdefault(dt, 0)
-            new_new_cases[dt] += new_cases1 + new_cases2 - new_cases3
+            # new_new_cases[dt] += new_cases1 + new_cases2 - new_cases3
+            new_new_cases[dt] += new_cases1 - new_cases2 + new_cases3
 
             time.sleep(1)
             driver.close()
@@ -86,7 +88,7 @@ def crawl(ser_new_cases):
 
 df = df.combine_first(ser_new_cases.to_frame(name = '上海市'))
 
-ser_new_cases = ser_new_cases[pd.Period('2022-03-23'):]
+# ser_new_cases = ser_new_cases[pd.Period('2022-03-23'):]
 annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('2022-03-28')}, 
                {'text': '浦西封控', 'x': pd.Period('2022-04-01')}]
 fig, axes = plt.subplots(1, 1)
