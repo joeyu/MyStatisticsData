@@ -133,32 +133,59 @@ def plot(df, **kwargs):
     
     return ax
 
-def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, traceback = None, annotations = None):
+
+def linear_fit_func(x, a, b):
+    return a * x + b 
+def exponential_fit_func(x, a, b, c):
+    return a * np.exp(b * x) + c
+    
+def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotations = None):
     ax = ser_new_cases.plot(ax = ax, title = ser_new_cases.name + '新冠每日新增病例及趋势', marker = 'd', color = 'r', label = "历史每日新增病例数")
     ax.set_xlabel("t", fontsize = 15)    
     ax.set_ylabel("每日新增病例数", fontsize = 15)    
-    n_day = np.arange(len(ser_new_cases))
-    popt, pcov = curve_fit(fit_func, n_day, ser_new_cases)
-    print(f'pcov: {pcov}')
-    if fit_func_type == 'exponential' or fit_func_type == 'quadratic':
-        a, b, c = popt
-        apply_fit_func = lambda x: int(fit_func(x, a, b, c))
-    elif fit_func_type == 'linear':
-        a, b = popt
-        apply_fit_func = lambda x: int(fit_func(x, a, b))
-    days = len(ser_new_cases) + trend_days
-    ser_new_cases_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
-    ser_new_cases_fit.index = pd.period_range(ser_new_cases.index[0], periods = days, freq='D')
-    ax = ser_new_cases_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
-    # x_ticklabels = [x.strftime('%m-%d') for x in ser_new_cases_fit.index]
-    y0, y1 = ax.get_ylim()
-    offset = y1 / 100 
-    for k, v in ser_new_cases.iteritems():
-        offset2 = offset if v > ser_new_cases_fit.get(k, 0) else -offset * 2
-        ax.text(k, v + offset2, v, color = 'r', ha='center') 
-    for k, v in ser_new_cases_fit.iteritems():
-        offset2 = offset if v > ser_new_cases.get(k, 0) else -offset * 2
-        ax.text(k, v + offset2, v, color = 'b', ha='center')  
+
+    if fit_func:
+        ser_new_cases_to_fit = ser_new_cases[fit_func['start']:] if fit_func['start'] else ser_new_cases
+        n_day = np.arange(len(ser_new_cases_to_fit))
+        popt, pcov = curve_fit(fit_func['func'], n_day, ser_new_cases_to_fit)
+        print(f'pcov: {pcov}')
+        if fit_func['type'] == 'exponential' or fit_func['type'] == 'quadratic':
+            a, b, c = popt
+            apply_fit_func = lambda x: int(fit_func['func'](x, a, b, c))
+        elif fit_func['type'] == 'linear':
+            a, b = popt
+            apply_fit_func = lambda x: int(fit_func['func'](x, a, b))
+        days = len(ser_new_cases_to_fit) + fit_func['trend']
+        ser_new_cases_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
+        ser_new_cases_fit.index = pd.period_range(ser_new_cases_to_fit.index[0], periods = days, freq='D')
+        ax = ser_new_cases_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
+        # x_ticklabels = [x.strftime('%m-%d') for x in ser_new_cases_fit.index]
+        y0, y1 = ax.get_ylim()
+        offset = (y1 - y0) / 100 
+        for k, v in ser_new_cases.iteritems():
+            offset2 = offset if v > ser_new_cases_fit.get(k, 0) else -offset * 2
+            ax.text(k, v + offset2, v, color = 'r', ha='center') 
+        for k, v in ser_new_cases_fit.iteritems():
+            offset2 = offset if v > ser_new_cases.get(k, 0) else -offset * 2
+            ax.text(k, v + offset2, v, color = 'b', ha='center')  
+
+        x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
+        y = int((y1 - y0) * 0.8)
+        if fit_func['type'] == 'exponential':
+            s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
+        elif fit_func['type'] == 'linear':
+            s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.1ft%+.1f$' % (a, b)
+        # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
+        #arrowprops=dict(facecolor='ivory', shrink=0.05)
+        arrowprops=None
+        bbox=dict(facecolor='beige')
+        ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.70, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
+    else:
+        y0, y1 = ax.get_ylim()
+        offset = (y1 - y0) / 100 
+        for k, v in ser_new_cases.iteritems():
+            ax.text(k, v + offset, v, color = 'r', ha='center') 
+
 
     ax.legend(loc='upper left')
 
@@ -168,34 +195,21 @@ def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, tra
     for label in ax.get_xticklabels(which = 'both'): 
         label.set_rotation(45)
 
-    x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
-    y0, y1 = ax.get_ylim()
-    y = int((y1 - y0) * 0.8)
-    if fit_func_type == 'exponential':
-        s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
-    elif fit_func_type == 'linear':
-        s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.1ft%+.1f$' % (a, b)
-    # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
-    #arrowprops=dict(facecolor='ivory', shrink=0.05)
-    arrowprops=None
-    bbox=dict(facecolor='beige')
-    ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.70, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
-
-    def fits(new_cases, start):
-        bt_array = [] 
-        while start in new_cases:
-            bt_new_cases = new_cases[:start]
-            n_day = np.arange(len(bt_new_cases))
-            popt, pcov = curve_fit(fit_func, n_day, bt_new_cases)
-            bt_array.append(popt)
-            start += 1
-        
-        a = np.array([p[0] for p in bt_array])
-        b = np.array([p[1] for p in bt_array])
-        exp = np.exp(b)
-        return exp
-
     if traceback:
+        def fits(new_cases, start):
+            bt_array = [] 
+            while start in new_cases:
+                bt_new_cases = new_cases[:start]
+                n_day = np.arange(len(bt_new_cases))
+                popt, pcov = curve_fit(fit_func, n_day, bt_new_cases)
+                bt_array.append(popt)
+                start += 1
+            
+            a = np.array([p[0] for p in bt_array])
+            b = np.array([p[1] for p in bt_array])
+            exp = np.exp(b)
+            return exp
+
         start = pd.Period(traceback)
         rate = fits(ser_new_cases, start)
         rate_index = ser_new_cases[start:].index
@@ -233,7 +247,7 @@ def covid19_plot(ser_new_cases, ax, fit_func, fit_func_type, trend_days = 7, tra
         for an in annotations:
             x = an['x']
             text = an['text']
-            v0, v1 = ser_new_cases[x], ser_new_cases_fit[x]
+            v0, v1 = ser_new_cases[x], ser_new_cases_fit[x] if x in ser_new_cases_fit else 0
             y = v0 if v0 > v1 else v1
             y0, y1 = ax.get_ylim()
             dy = (y1 - y0) * 0.04

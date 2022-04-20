@@ -95,11 +95,7 @@ def crawl(ser_new_cases):
 df = df.combine_first(ser_new_cases.to_frame(name = '广州市'))
 
 fig, axes = plt.subplots(1, 1)
-def linear_fit_func(x, a, b):
-    return a * x + b 
-def exponential_fit_func(x, a, b, c):
-    return a * np.exp(b * x) + c
-ax = msd.covid19_plot(ser_new_cases, axes, linear_fit_func, 'linear', 2, None)
+ax = msd.covid19_plot(ser_new_cases, axes)
 # ax = msd.covid19_plot(ser_new_cases, axes, exponential_fit_func, 'exponential', 2, None)
 
 # arrowprops=dict(facecolor='cyan', shrink=0.05)

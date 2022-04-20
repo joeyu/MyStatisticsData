@@ -93,16 +93,19 @@ def crawl(ser_new_cases):
 df = df.combine_first(ser_new_cases.to_frame(name = '吉林省'))
 
 fig, axes = plt.subplots(1, 1)
-ax = ser_new_cases.plot(ax = axes, title = "吉林省新冠每日新增病例", marker = 'x', color = 'r', label = "历史病例数")
-for k, v in ser_new_cases.iteritems():
-    offset = 100
-    ax.text(k, v + offset, v, color = 'r')  
+ax = msd.covid19_plot(ser_new_cases, axes)
 
-ax.legend()
+# fig, axes = plt.subplots(1, 1)
+# ax = ser_new_cases.plot(ax = axes, title = "吉林省新冠每日新增病例", marker = 'x', color = 'r', label = "历史病例数")
+# for k, v in ser_new_cases.iteritems():
+#     offset = 100
+#     ax.text(k, v + offset, v, color = 'r')  
 
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m-%d'))
-ax.grid(which='both', axis = 'x')
-# ax.grid(which='minor', axis = 'x')
-for label in ax.get_xticklabels(which = 'both'): 
-    label.set_rotation(45)
+# ax.legend()
+
+# ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+# ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m-%d'))
+# ax.grid(which='both', axis = 'x')
+# # ax.grid(which='minor', axis = 'x')
+# for label in ax.get_xticklabels(which = 'both'): 
+#     label.set_rotation(45)
