@@ -94,6 +94,6 @@ annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('
 fig, axes = plt.subplots(1, 1)
 fit_func = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-04-10'), 'trend': 7}
 ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
-fit_func = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-04-10')}
+fit_func = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-04-10'), 'trend': 7}
 # ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
 
