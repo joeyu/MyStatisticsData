@@ -179,7 +179,10 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         #arrowprops=dict(facecolor='ivory', shrink=0.05)
         arrowprops=None
         bbox=dict(facecolor='beige')
-        ax.annotate(s, xy = (0.98, 0.9), xycoords = 'axes fraction', xytext = (0.70, 0.9), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
+        y = ser_new_cases_fit[-2]
+        _, y = ax.transData.transform((0, y))
+        _, y = ax.transAxes.inverted().transform((0, y))
+        ax.annotate(s, xy = (0.98, y), xycoords = 'axes fraction', xytext = (0.75, y), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
     else:
         y0, y1 = ax.get_ylim()
         offset = (y1 - y0) / 100 
