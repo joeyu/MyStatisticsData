@@ -45,7 +45,7 @@ import MyStatisticsData as msd
 df = msd.load()
 ser_new_cases = df['吉林省'].dropna().astype('int64')
 
-def crawl(ser_new_cases):
+def scrape(ser_new_cases):
     new_new_cases = {}
     profile = webdriver.FirefoxProfile()
     profile.set_preference("network.proxy.type", 0)

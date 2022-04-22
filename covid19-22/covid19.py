@@ -1,0 +1,161 @@
+import logging
+import sys
+import re
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+import matplotlib.font_manager as fm
+import matplotlib.dates as mdates
+from fontTools.ttLib import TTFont
+import numpy as np
+from pathlib import Path
+import io
+import json
+from datetime import datetime, timedelta
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from scipy.optimize import curve_fit
+import time
+import sys
+
+module_fn = 'MyStatisticsData.py'
+d = Path().cwd()
+while True:
+    p = d / module_fn
+    if p.exists():
+        break
+    else:
+        if d.parent.name == d.name:
+            raise FileNotFoundError(f"Can NOT find '{module_fn}'")
+        d = d.parent
+sys.path.append(str(d))
+import MyStatisticsData as msd
+
+df = msd.load()
+
+def scrape():
+    municipalities = ['北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江', '上海', '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南', '广东', '广西', '海南', '重庆', '四川', '贵州', '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆', '兵团']
+    df = pd.DataFrame()
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("network.proxy.type", 0)
+    profile.update_preferences()
+    with webdriver.Firefox(executable_path='geckodriver', firefox_profile=profile) as driver:
+        driver.get("http://www.nhc.gov.cn/xcs/yqtb/list_gzbd_5.shtml")
+    
+        ul_list_xpath = "/html/body/div[3]/div[2]/ul"
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, ul_list_xpath)))
+        li_list = driver.find_element_by_xpath(ul_list_xpath).find_elements_by_tag_name('li')
+        for li in li_list:
+            a = li.find_element_by_tag_name('a')
+            print(f"===={a.get_attribute('title')}====")
+            # if a.get_attribute('title').find('截至1月18日24时新型冠状病毒肺炎疫情最新情况') == -1:
+            if a.get_attribute('title').find('新型冠状病毒肺炎疫情最新情况') == -1:
+                continue
+            a.click()
+            WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+            driver.switch_to.window(driver.window_handles[1])
+            div_xpath = '//*[@id="xw_box"]'
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, div_xpath)))
+            div = driver.find_element_by_xpath(div_xpath)
+            s = div.text
+            #print(s)
+            pat = re.compile(r"(\d{1,2})月(\d{1,2})日0—24时，31个省（自治区、直辖市）和新疆生产建设兵团报告新增确诊病例\d+例.+?本土病例(\d+)例\*?（(.+?)(?<!（残)）.+?(?:含(\d+)例\*?由无症状感染者转为确诊病例\*?（(.+?)(?<!（残)）)?")
+            m = pat.search(s)
+            print(m.groups())
+            mu_new_cases = {}
+            if m:
+                month, day = int(m.groups()[0]), int(m.groups()[1])
+                mu_new_cases['全国合计'] = int(m.groups()[2])
+                # print(f"全国合计：{int(m.groups()[2])}")
+                m2 = re.match('^均?在(.+)$', m.groups()[3])
+                if m2:
+                    k, = m2.groups()
+                    for mu in municipalities:
+                        if mu in k:
+                            mu_new_cases[mu] = int(m.groups()[2])
+                            # print(f"{mu}: {m.groups()[2]}")
+                else:
+                    # vv = 0
+                    for x in m.groups()[3].split('；'):
+                        for y in x.split('，'):
+                            # print(y)
+                            m2 = re.match('^(.+?)(\d+)例\*?$', y)
+                            if m2:
+                                k, v = m2.groups()
+                                for mu in municipalities:
+                                    if mu in k and '吉林市' not in k and '河北区' not in k:
+                                        mu_new_cases[mu] = int(v)
+                                        # vv += int(v)
+                                        # print(f"{mu}: {v}")
+                    # print(f"vv = {vv}")
+                if m.groups()[4]: 
+                    mu_new_cases['全国合计'] -= int(m.groups()[4])
+                    # print(f"全国合计：{int(m.groups()[4])}")
+                if m.groups()[5]:
+                    m2 = re.match('^均?在(.+)$', m.groups()[5])
+                    if m2:
+                        k, = m2.groups()
+                        for mu in municipalities:
+                            if mu in k:
+                                mu_new_cases[mu] -= int(m.groups()[4])
+                                # print(f"{mu}: {m.groups()[4]}")
+                    else:
+                        # vv = 0
+                        for x in m.groups()[5].split('；'):
+                            for y in x.split('，'):
+                                m2 = re.match('^(.+?)(\d+)例\*?$', y)
+                                if m2:
+                                    k, v = m2.groups()
+                                    for mu in municipalities:
+                                        if mu in k and '吉林市' not in k and '河北区' not in k:
+                                            mu_new_cases[mu] -= int(v)
+                                            # print(f"{mu}: {v}")
+                                            # vv += int(v)
+                        # print(f"vv = {vv}")
+            pat = re.compile(r"31个省（自治区、直辖市）和新疆生产建设兵团报告新增无症状感染者\d+例.+?本土(\d+)例（(.+?)(?<!（残)）")
+            m = pat.search(s)
+            if m:
+                print(m.groups())
+                mu_new_cases['全国合计'] += int(m.groups()[0])
+                # print(f"全国合计：{int(m.groups()[0])}")
+                m2 = re.match('^均?在(.+)$', m.groups()[1])
+                if m2:
+                    k, = m2.groups()
+                    for mu in municipalities:
+                        if mu in k:
+                            mu_new_cases[mu] = mu_new_cases.setdefault(mu, 0)
+                            mu_new_cases[mu] += int(m.groups()[0])
+                else:
+                    # vv = 0
+                    for x in m.groups()[1].split('；'):
+                        for y in x.split('，'):
+                            for z in y.split('、'):
+                                m2 = re.match('^(?:其中)?(.+?)(\d+)例$', z)
+                                if m2:
+                                    k, v = m2.groups()
+                                    for mu in municipalities:
+                                        if mu in k and '吉林市' not in k and '河北区' not in k:
+                                            mu_new_cases[mu] = mu_new_cases.setdefault(mu, 0)
+                                            mu_new_cases[mu] += int(v)
+                                            # vv += int(v)
+                                            # print(f"{mu}: {v}")
+                    # print(f"vv = {vv}")
+            dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
+            if dt in df.index:
+                break
+            df_day = pd.DataFrame(mu_new_cases, index = [dt])
+            df = df.combine_first(df_day)
+
+            time.sleep(1)
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
+    return df.sort_index()
+
+# df2 = scrape()
+# df2.drop('全国合计', axis = 1).sum(axis = 1) == df2['全国合计']
+# df = df.combine_first(df2)
