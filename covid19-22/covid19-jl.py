@@ -43,7 +43,7 @@ import MyStatisticsData as msd
 
 # mpl.rc('font', family = 'SimHei', size = 12)
 df = msd.load()
-ser_new_cases = df['吉林省'].dropna().astype('int64')
+ser_new_cases = df['吉林'].dropna().astype('int64')
 
 def scrape(ser_new_cases):
     new_new_cases = {}
@@ -90,7 +90,7 @@ def scrape(ser_new_cases):
     return pd.concat([ser_new_cases, pd.Series(new_new_cases)]).sort_index()
 
 # df = df.drop('吉林省', axis = 1).merge(ser_new_cases.to_frame(name = '吉林省'), how = 'outer', left_index=True, right_index=True)
-df = df.combine_first(ser_new_cases.to_frame(name = '吉林省'))
+# df = df.combine_first(ser_new_cases.to_frame(name = '吉林省'))
 
 fig, axes = plt.subplots(1, 1)
 ax = msd.covid19_plot(ser_new_cases, axes)

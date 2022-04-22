@@ -38,14 +38,14 @@ import MyStatisticsData as msd
 
 df = msd.load()
 
-def scrape():
+def scrape(df):
     municipalities = ['北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江', '上海', '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南', '广东', '广西', '海南', '重庆', '四川', '贵州', '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆', '兵团']
-    df = pd.DataFrame()
+    df_new = pd.DataFrame()
     profile = webdriver.FirefoxProfile()
     profile.set_preference("network.proxy.type", 0)
     profile.update_preferences()
     with webdriver.Firefox(executable_path='geckodriver', firefox_profile=profile) as driver:
-        driver.get("http://www.nhc.gov.cn/xcs/yqtb/list_gzbd_5.shtml")
+        driver.get("http://www.nhc.gov.cn/xcs/yqtb/list_gzbd.shtml")
     
         ul_list_xpath = "/html/body/div[3]/div[2]/ul"
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, ul_list_xpath)))
@@ -149,12 +149,12 @@ def scrape():
             if dt in df.index:
                 break
             df_day = pd.DataFrame(mu_new_cases, index = [dt])
-            df = df.combine_first(df_day)
+            df_new = df_new.combine_first(df_day)
 
             time.sleep(1)
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
-    return df.sort_index()
+    return df_new.sort_index()
 
 # df2 = scrape()
 # df2.drop('全国合计', axis = 1).sum(axis = 1) == df2['全国合计']

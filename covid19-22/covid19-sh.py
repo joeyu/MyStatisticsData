@@ -43,7 +43,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 df = msd.load()
-ser_new_cases = df['上海市'].dropna().astype('int64')
+ser_new_cases = df['上海'].dropna().astype('int64')['2022-03-15':]
 
 def scrape(ser_new_cases):
     new_new_cases = {}
@@ -86,7 +86,7 @@ def scrape(ser_new_cases):
             driver.switch_to.window(driver.window_handles[0])
     return pd.concat([ser_new_cases, pd.Series(new_new_cases)]).sort_index()
 
-df = df.combine_first(ser_new_cases.to_frame(name = '上海市'))
+# df = df.combine_first(ser_new_cases.to_frame(name = '上海'))
 
 # ser_new_cases = ser_new_cases[pd.Period('2022-03-23'):]
 annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('2022-03-28')}, 

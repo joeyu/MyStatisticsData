@@ -44,7 +44,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 df = msd.load()
-ser_new_cases = df['广州市'].dropna().astype('int64')
+ser_new_cases = df['广东'].dropna().astype('int64')
 
 def scrape(ser_new_cases):
     new_new_cases = {}
