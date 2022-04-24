@@ -53,7 +53,7 @@ def scrape(df):
         for li in li_list:
             a = li.find_element_by_tag_name('a')
             print(f"===={a.get_attribute('title')}====")
-            # if a.get_attribute('title').find('截至1月18日24时新型冠状病毒肺炎疫情最新情况') == -1:
+            # if a.get_attribute('title').find('截至4月23日24时新型冠状病毒肺炎疫情最新情况') == -1:
             if a.get_attribute('title').find('新型冠状病毒肺炎疫情最新情况') == -1:
                 continue
             a.click()
@@ -72,14 +72,14 @@ def scrape(df):
             mu_new_cases = {}
             if m:
                 month, day = int(m.groups()[0]), int(m.groups()[1])
-                mu_new_cases['全国合计'] = int(m.groups()[2])
+                mu_new_cases[('新增病例', '全国合计')] = int(m.groups()[2])
                 # print(f"全国合计：{int(m.groups()[2])}")
                 m2 = re.match('^均?在(.+)$', m.groups()[3])
                 if m2:
                     k, = m2.groups()
                     for mu in municipalities:
                         if mu in k:
-                            mu_new_cases[mu] = int(m.groups()[2])
+                            mu_new_cases[('新增病例', mu)] = int(m.groups()[2])
                             # print(f"{mu}: {m.groups()[2]}")
                 else:
                     # vv = 0
@@ -91,12 +91,12 @@ def scrape(df):
                                 k, v = m2.groups()
                                 for mu in municipalities:
                                     if mu in k and '吉林市' not in k and '河北区' not in k:
-                                        mu_new_cases[mu] = int(v)
+                                        mu_new_cases[('新增病例', mu)] = int(v)
                                         # vv += int(v)
                                         # print(f"{mu}: {v}")
                     # print(f"vv = {vv}")
                 if m.groups()[4]: 
-                    mu_new_cases['全国合计'] -= int(m.groups()[4])
+                    mu_new_cases[('新增病例', '全国合计')] -= int(m.groups()[4])
                     # print(f"全国合计：{int(m.groups()[4])}")
                 if m.groups()[5]:
                     m2 = re.match('^均?在(.+)$', m.groups()[5])
@@ -104,7 +104,7 @@ def scrape(df):
                         k, = m2.groups()
                         for mu in municipalities:
                             if mu in k:
-                                mu_new_cases[mu] -= int(m.groups()[4])
+                                mu_new_cases[('新增病例', mu)] -= int(m.groups()[4])
                                 # print(f"{mu}: {m.groups()[4]}")
                     else:
                         # vv = 0
@@ -115,7 +115,7 @@ def scrape(df):
                                     k, v = m2.groups()
                                     for mu in municipalities:
                                         if mu in k and '吉林市' not in k and '河北区' not in k:
-                                            mu_new_cases[mu] -= int(v)
+                                            mu_new_cases[('新增病例', mu)] -= int(v)
                                             # print(f"{mu}: {v}")
                                             # vv += int(v)
                         # print(f"vv = {vv}")
@@ -123,15 +123,15 @@ def scrape(df):
             m = pat.search(s)
             if m:
                 print(m.groups())
-                mu_new_cases['全国合计'] += int(m.groups()[0])
+                mu_new_cases[('新增病例', '全国合计')] += int(m.groups()[0])
                 # print(f"全国合计：{int(m.groups()[0])}")
                 m2 = re.match('^均?在(.+)$', m.groups()[1])
                 if m2:
                     k, = m2.groups()
                     for mu in municipalities:
                         if mu in k:
-                            mu_new_cases[mu] = mu_new_cases.setdefault(mu, 0)
-                            mu_new_cases[mu] += int(m.groups()[0])
+                            mu_new_cases[('新增病例', mu)] = mu_new_cases.setdefault(('新增病例', mu), 0)
+                            mu_new_cases[('新增病例', mu)] += int(m.groups()[0])
                 else:
                     # vv = 0
                     for x in m.groups()[1].split('；'):
@@ -142,16 +142,36 @@ def scrape(df):
                                     k, v = m2.groups()
                                     for mu in municipalities:
                                         if mu in k and '吉林市' not in k and '河北区' not in k:
-                                            mu_new_cases[mu] = mu_new_cases.setdefault(mu, 0)
-                                            mu_new_cases[mu] += int(v)
+                                            mu_new_cases[('新增病例', mu)] = mu_new_cases.setdefault(('新增病例', mu), 0)
+                                            mu_new_cases[('新增病例', mu)] += int(v)
                                             # vv += int(v)
                                             # print(f"{mu}: {v}")
                     # print(f"vv = {vv}")
+
+            pat = re.compile(r"新增死亡病例(\d+)例(.+?)；")
+            m = pat.search(s)
+            if m:
+                print(m.groups())
+                mu_new_cases[('新增死亡', '全国合计')] = int(m.groups()[0])
+                pat = re.compile(r'^.*?均为本土病例，均?在(.+?)$')
+                m2 = re.match(pat, m.groups()[1])
+                if m2:
+                    k, = m2.groups()
+                    for mu in municipalities:
+                        if mu in k:
+                            mu_new_cases[('新增死亡', mu)] = int(m.groups()[0])
+                else:
+                    raise Exception(f"{m2.groups()}")
+
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
-            if dt in df.index:
-                break
+            if df:
+                if dt in df.index:
+                    break
             df_day = pd.DataFrame(mu_new_cases, index = [dt])
-            df_new = df_new.combine_first(df_day)
+            print(df_day)
+            # print(df_day.columns)
+            df_new = df_day if df_new.empty else df_new.combine_first(df_day)
+            # print(df_new)
 
             time.sleep(1)
             driver.close()
@@ -159,5 +179,5 @@ def scrape(df):
     return df_new.sort_index()
 
 # df2 = scrape()
-# df2.drop('全国合计', axis = 1).sum(axis = 1) == df2['全国合计']
+# df2.drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增病例', '全国合计')]
 # df = df.combine_first(df2).sort_values(df.index[-1], axis = 1, ascending=False)

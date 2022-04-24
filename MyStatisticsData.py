@@ -15,6 +15,33 @@ from scipy.optimize import curve_fit
 
 logging.basicConfig(level=logging.INFO)
 
+def multilevel_df_sort_values(df, *args, **kwargs):
+    axis = kwargs.get('axis', 0)
+    df_sorted = pd.DataFrame()
+    if axis == 0:
+        levels = df.index.levels
+    else:
+        levels = df.columns.levels
+        for l in levels[-2]:
+            df_sorted = pd.concat([df_sorted, df[[l]].sort_values(*args, **kwargs)], axis = 1)
+    
+    return df_sorted
+
+def multilevel_df_split(df, axis = 0):
+    dfs = {}
+    if axis == 0:
+        keys = pd.MultiIndex.from_product(df.index.levels[:-1])
+        for k in keys:
+            if k in df:
+                dfs[k] = df.loc[k]
+    else:
+        keys = pd.MultiIndex.from_product(df.columns.levels[:-1])
+        for k in keys:
+            if k in df:
+                dfs[k] = df[k]
+    
+    return dfs
+
 def load_meta(meta_fp:str):
     with io.open(meta_fp, 'r', encoding='utf-8') as f:
         meta = json.load(f)
@@ -122,9 +149,16 @@ def plot(df, **kwargs):
     ax.set_ylabel(ylabel)
     for col in df:
         ser = df[col]
-        ax.plot(ser.index.strftime('%Y'), ser, label = col, **kwargs)
+        if type(ser.name) == tuple:
+            ser.name = '/'.join(ser.name)
+        freq = ser.index.freqstr
+        if freq == 'Y':
+            format = '%Y'
+        elif freq == 'D':
+            format = '%m-%d' 
+        ax.plot(ser.index.strftime(format), ser, label = col, **kwargs)
         for k, v in ser.iteritems():
-            k = k.strftime('%Y')
+            k = k.strftime(format)
             ax.text(k, v + 0.2, v)
     
     axes = ax.get_shared_x_axes().get_siblings(ax)
