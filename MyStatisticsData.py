@@ -250,8 +250,11 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         for an in annotations:
             x = an['x']
             text = an['text']
-            v0, v1 = ser_new_cases[x], ser_new_cases_fit[x] if x in ser_new_cases_fit else 0
-            y = v0 if v0 > v1 else v1
+            if fit_func:
+                v0, v1 = ser_new_cases[x], ser_new_cases_fit[x] if x in ser_new_cases_fit else 0
+                y = v0 if v0 > v1 else v1
+            else:
+                y = ser_new_cases[x]
             y0, y1 = ax.get_ylim()
             dy = (y1 - y0) * 0.04
             ax.annotate(text, xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')

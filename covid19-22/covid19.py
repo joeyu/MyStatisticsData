@@ -66,7 +66,9 @@ def scrape(df):
             #print(s)
             pat = re.compile(r"(\d{1,2})月(\d{1,2})日0—24时，31个省（自治区、直辖市）和新疆生产建设兵团报告新增确诊病例\d+例.+?本土病例(\d+)例\*?（(.+?)(?<!（残)）.+?(?:含(\d+)例\*?由无症状感染者转为确诊病例\*?（(.+?)(?<!（残)）)?")
             m = pat.search(s)
-            print(m.groups())
+            print(m.groups()[:2])
+            print(m.groups()[2:4])
+            print(m.groups()[4:])
             mu_new_cases = {}
             if m:
                 month, day = int(m.groups()[0]), int(m.groups()[1])
@@ -158,4 +160,4 @@ def scrape(df):
 
 # df2 = scrape()
 # df2.drop('全国合计', axis = 1).sum(axis = 1) == df2['全国合计']
-# df = df.combine_first(df2)
+# df = df.combine_first(df2).sort_values(df.index[-1], axis = 1, ascending=False)

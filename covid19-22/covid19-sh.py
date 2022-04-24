@@ -43,7 +43,7 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 df = msd.load()
-ser_new_cases = df['上海'].dropna().astype('int64')['2022-03-15':]
+ser_new_cases = df['上海'].dropna().astype('int64')['2022-03-1':]
 
 def scrape(ser_new_cases):
     new_new_cases = {}
@@ -93,7 +93,7 @@ annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('
                {'text': '浦西封控', 'x': pd.Period('2022-04-01')}]
 fig, axes = plt.subplots(1, 1)
 fit_func = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-04-10'), 'trend': 7}
-ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
+ax = msd.covid19_plot(ser_new_cases, axes, fit_func = None, traceback = None, annotations = annotations)
 fit_func = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-04-10'), 'trend': 7}
 # ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
 
