@@ -133,6 +133,61 @@ def plot(df, **kwargs):
     
     return ax
 
+def standard_math_coordinate(ax):
+    if ax == None:
+        ax = plt.gca()
+    ax.spines[['left', 'bottom']].set_position('zero')
+    ax.spines[['top', 'right']].set_visible(False)    
+    ax.set_aspect('equal')
+
+    return ax
+
+def annotate_plot_line_twins(ax, ser0, ser1):
+    if ax == None:
+        ax = plt.gca()
+
+    y0, y1 = ax.get_ylim()
+    offset = (y1 - y0) / 100 
+    for k, v in ser0.iteritems():
+        offset2 = offset if v > ser1.get(k, 0) else -offset * 2
+        ax.text(k, v + offset2, v, color = 'r', ha='center') 
+    for k, v in ser1.iteritems():
+        offset2 = offset if v > ser0.get(k, 0) else -offset * 2
+        ax.text(k, v + offset2, v, color = 'b', ha='center')  
+    
+    return ax
+
+def annotate_plot_line(ax, ser):
+    if ax == None:
+        ax = plt.gca()
+
+    y0, y1 = ax.get_ylim()
+    offset = (y1 - y0) / 100 
+    for k, v in ser.iteritems():
+        ax.text(k, v + offset, v, color = 'r', ha='center') 
+    
+    return ax
+
+def format_xaxis(ax, format):
+    if ax == None:
+        ax = plt.gca()
+
+    ax.xaxis.set_major_formatter(mdates.DateFormatter(format))
+    ax.xaxis.set_minor_formatter(mdates.DateFormatter(format))
+    for label in ax.get_xticklabels(which = 'both'): 
+        label.set_rotation(45)
+
+def add_legend_entry(ax, line, label):
+    if ax == None:
+        ax = plt.gca()
+
+    legend = ax.get_legend()
+    handles, labels = ax.get_legend_handles_labels()
+    handles.append(line)
+    labels.append(label)
+    legend._legend_box = None
+    legend._init_legend_box(handles, labels)
+    legend._set_loc(legend._loc)
 
 def linear_fit_func(x, a, b):
     return a * x + b 
@@ -159,44 +214,27 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         ser_new_cases_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
         ser_new_cases_fit.index = pd.period_range(ser_new_cases_to_fit.index[0], periods = days, freq='D')
         ax = ser_new_cases_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
-        # x_ticklabels = [x.strftime('%m-%d') for x in ser_new_cases_fit.index]
-        y0, y1 = ax.get_ylim()
-        offset = (y1 - y0) / 100 
-        for k, v in ser_new_cases.iteritems():
-            offset2 = offset if v > ser_new_cases_fit.get(k, 0) else -offset * 2
-            ax.text(k, v + offset2, v, color = 'r', ha='center') 
-        for k, v in ser_new_cases_fit.iteritems():
-            offset2 = offset if v > ser_new_cases.get(k, 0) else -offset * 2
-            ax.text(k, v + offset2, v, color = 'b', ha='center')  
+        annotate_plot_line_twins(ax, ser_new_cases, ser_new_cases_fit)
 
-        x = ser_new_cases_fit.index[int(len(ser_new_cases_fit) * 0.7)]
+        y0, y1 = ax.get_ylim()
         y = int((y1 - y0) * 0.8)
         if fit_func['type'] == 'exponential':
             s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.2fe^{%.3ft}%+.1f$' % (a, b, c)
         elif fit_func['type'] == 'linear':
             s = r'$\frac{\mathrm{d}I_T}{\mathrm{d}t} = %.1ft%+.1f$' % (a, b)
-        # ax.text(x, y, s, color = 'b', fontsize = 18, bbox=dict(facecolor='ivory'))
-        #arrowprops=dict(facecolor='ivory', shrink=0.05)
-        arrowprops=None
-        bbox=dict(facecolor='beige')
+        # arrowprops=dict(facecolor='ivory', shrink=0.05)
+        arrowprops = None
+        bbox = {'facecolor': 'beige'}
         y = ser_new_cases_fit[-2]
         _, y = ax.transData.transform((0, y))
         _, y = ax.transAxes.inverted().transform((0, y))
         ax.annotate(s, xy = (0.98, y), xycoords = 'axes fraction', xytext = (0.75, y), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
     else:
-        y0, y1 = ax.get_ylim()
-        offset = (y1 - y0) / 100 
-        for k, v in ser_new_cases.iteritems():
-            ax.text(k, v + offset, v, color = 'r', ha='center') 
-
+        annotate_plot_line(ax, ser_new_cases)
 
     ax.legend(loc='upper left')
-
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m-%d'))
+    format_xaxis(ax, '%m-%d')
     ax.grid(which='both', axis = 'x')
-    for label in ax.get_xticklabels(which = 'both'): 
-        label.set_rotation(45)
 
     if traceback:
         def fits(new_cases, start):
@@ -236,13 +274,7 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         bbox=dict(facecolor='beige')
         ax_twinx.annotate(s, xy = (rate_index[0], rate[0]), xycoords = 'data', xytext = (-80, 50), textcoords = 'offset points', arrowprops = arrowprops, color = 'purple', bbox = bbox, size = 20)
 
-        legend = ax.get_legend()
-        handles, labels = ax.get_legend_handles_labels()
-        handles.append(line)
-        labels.append("拟合数日增长倍数")
-        legend._legend_box = None
-        legend._init_legend_box(handles, labels)
-        legend._set_loc(legend._loc)
+        add_legend_entry(ax, line, "拟合数日增长倍数")
 
     if annotations:
         arrowprops=dict(facecolor='cyan', shrink=0.05)
