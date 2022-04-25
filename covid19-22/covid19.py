@@ -164,7 +164,7 @@ def scrape(df):
                     raise Exception(f"{m2.groups()}")
 
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
-            if df:
+            if not df.empty:
                 if dt in df.index:
                     break
             df_day = pd.DataFrame(mu_new_cases, index = [dt])
@@ -179,5 +179,6 @@ def scrape(df):
     return df_new.sort_index()
 
 # df2 = scrape()
-# df2.drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增病例', '全国合计')]
-# df = df.combine_first(df2).sort_values(df.index[-1], axis = 1, ascending=False)
+# df['新增病例'].drop('全国合计', axis = 1).sum(axis = 1) - df[('新增病例', '全国合计')]
+# df = df.combine_first(df2)
+# df = msd.multilevel_df_sort_values(df, df.index[-1], axis = 1, ascending=False)

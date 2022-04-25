@@ -228,15 +228,15 @@ def linear_fit_func(x, a, b):
 def exponential_fit_func(x, a, b, c):
     return a * np.exp(b * x) + c
     
-def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotations = None):
-    ax = ser_new_cases.plot(ax = ax, title = ser_new_cases.name + '新冠每日新增病例及趋势', marker = 'd', color = 'r', label = "历史每日新增病例数")
+def covid19_plot(ser, ax, fit_func = None, traceback = None, annotations = None):
+    ax = ser.plot(ax = ax, title = ser.name[0] + '新冠每日' + ser.name[1] + '及趋势', marker = 'd', color = 'r', label = "历史每日" + ser.name[1] + "数")
     ax.set_xlabel("t", fontsize = 15)    
-    ax.set_ylabel("每日新增病例数", fontsize = 15)    
+    ax.set_ylabel("每日" + ser.name[1] + "数", fontsize = 15)    
 
     if fit_func:
-        ser_new_cases_to_fit = ser_new_cases[fit_func['start']:] if fit_func['start'] else ser_new_cases
-        n_day = np.arange(len(ser_new_cases_to_fit))
-        popt, pcov = curve_fit(fit_func['func'], n_day, ser_new_cases_to_fit)
+        ser_to_fit = ser[fit_func['start']:] if fit_func['start'] else ser
+        n_day = np.arange(len(ser_to_fit))
+        popt, pcov = curve_fit(fit_func['func'], n_day, ser_to_fit)
         print(f'pcov: {pcov}')
         if fit_func['type'] == 'exponential' or fit_func['type'] == 'quadratic':
             a, b, c = popt
@@ -244,11 +244,11 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         elif fit_func['type'] == 'linear':
             a, b = popt
             apply_fit_func = lambda x: int(fit_func['func'](x, a, b))
-        days = len(ser_new_cases_to_fit) + fit_func['trend']
-        ser_new_cases_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
-        ser_new_cases_fit.index = pd.period_range(ser_new_cases_to_fit.index[0], periods = days, freq='D')
-        ax = ser_new_cases_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
-        annotate_plot_line_twins(ax, ser_new_cases, ser_new_cases_fit)
+        days = len(ser_to_fit) + fit_func['trend']
+        ser_fit = pd.Series(np.arange(days)).apply(apply_fit_func)
+        ser_fit.index = pd.period_range(ser_to_fit.index[0], periods = days, freq='D')
+        ax = ser_fit.plot(ax = ax, linestyle = '--', marker ='o', color = 'b', label = "拟合数及趋势")
+        annotate_plot_line_twins(ax, ser, ser_fit)
 
         y0, y1 = ax.get_ylim()
         y = int((y1 - y0) * 0.8)
@@ -259,12 +259,12 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
         # arrowprops=dict(facecolor='ivory', shrink=0.05)
         arrowprops = None
         bbox = {'facecolor': 'beige'}
-        y = ser_new_cases_fit[-2]
+        y = ser_fit[-2]
         _, y = ax.transData.transform((0, y))
         _, y = ax.transAxes.inverted().transform((0, y))
         ax.annotate(s, xy = (0.98, y), xycoords = 'axes fraction', xytext = (0.75, y), textcoords = 'axes fraction', arrowprops = arrowprops, bbox = bbox, color = 'blue', size = 18)
     else:
-        annotate_plot_line(ax, ser_new_cases)
+        annotate_plot_line(ax, ser)
 
     ax.legend(loc='upper left')
     format_xaxis(ax, '%m-%d')
@@ -286,8 +286,8 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
             return exp
 
         start = pd.Period(traceback)
-        rate = fits(ser_new_cases, start)
-        rate_index = ser_new_cases[start:].index
+        rate = fits(ser, start)
+        rate_index = ser[start:].index
         ax_twinx = ax.twinx()
         line, = ax_twinx.plot(rate_index.to_timestamp(), rate, color = 'purple', linestyle = '--', marker = 'x')
         ax_twinx.set_ylabel("日增长倍数", fontsize = 15, color = 'purple')
@@ -317,10 +317,10 @@ def covid19_plot(ser_new_cases, ax, fit_func = None, traceback = None, annotatio
             x = an['x']
             text = an['text']
             if fit_func:
-                v0, v1 = ser_new_cases[x], ser_new_cases_fit[x] if x in ser_new_cases_fit else 0
+                v0, v1 = ser[x], ser_fit[x] if x in ser_fit else 0
                 y = v0 if v0 > v1 else v1
             else:
-                y = ser_new_cases[x]
+                y = ser[x]
             y0, y1 = ax.get_ylim()
             dy = (y1 - y0) * 0.04
             ax.annotate(text, xy =(x, y + dy), xytext = (0, 50), textcoords = 'offset points', arrowprops = arrowprops, bbox = bbox, ha = 'center')
