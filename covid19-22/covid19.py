@@ -180,9 +180,11 @@ def scrape(df):
 
 def scrape_and_save(df):
     df2 = scrape(df)
-    if df2['新增病例'].drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增病例', '全国合计')] and df2['新增死亡'].drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增死亡', '全国合计')]:
+    if (df2['新增病例'].drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增病例', '全国合计')]).all() and (df2['新增死亡'].drop('全国合计', axis = 1).sum(axis = 1) == df2[('新增死亡', '全国合计')]).all():
         df = df.combine_first(df2)
         df = msd.multilevel_df_sort_values(df, df.index[-1], axis = 1, ascending=False)
         df.to_csv('每日新增病例.csv')
     
     return df
+
+df['新增病例'].drop(['全国合计'], axis = 1).iloc[-7:,1:10].plot(title = '全国每日新增病例数除上海外top2-10')

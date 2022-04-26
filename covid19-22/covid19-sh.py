@@ -93,12 +93,12 @@ def scrape(ser_new_cases):
 annotations = [{'text': "浦东、浦南及毗邻区域封控", 'x': pd.Period('2022-03-28')}, 
                {'text': '浦西封控', 'x': pd.Period('2022-04-01')}]
 fig, axes = plt.subplots(1, 1)
-fit_func = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-04-10'), 'trend': 7}
+fit_func_exponential = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-04-10'), 'trend': 7}
+fit_func_linear = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-04-10'), 'trend': 7}
 ax = msd.covid19_plot(ser_new_cases, axes, fit_func = None, traceback = None, annotations = annotations)
-fit_func = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-04-10'), 'trend': 7}
 # ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
 
 fig, axes = plt.subplots(1, 1)
 ser_new_deaths = df_sh['上海', '新增死亡'].dropna().astype('int64')
-ax = msd.covid19_plot(ser_new_deaths, axes, fit_func = None, traceback = None, annotations = None)
+ax = msd.covid19_plot(ser_new_deaths, axes, fit_func = fit_func_exponential, traceback = None, annotations = None)
 # msd.plot(df['新增死亡', '上海'], ax = axes)
