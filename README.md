@@ -9,4 +9,4 @@ Index must be `pandas.Period` as string, and all indices of a file shall be of s
 A .csv file has meta data for loading, which is stored in file 'meta.json' in the same directory. All of the .csv files of the same directory share one same 'meta.json' file.
 
 ## [`MyStatisticsData`](./MyStatisticsData.py)
-Module `MyStatisticsData` provides all helper routines that can be used to load, process and store the data.
+Module `MyStatisticsData` provides some helper routines that can be used to load, process, store and plot the data.

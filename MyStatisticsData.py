@@ -202,6 +202,12 @@ def annotate_plot_line(ax, ser):
     
     return ax
 
+def annotate_area_values(ax, df):
+    df2 = df.cumsum(axis = 1) - df / 2
+    for i in range(len(df)):
+        for y, v in zip(df2.iloc[i], df.iloc[i]):
+            ax.text(df2.index[i], y, v, ha = 'center') 
+
 def format_xaxis(ax, format):
     if ax == None:
         ax = plt.gca()
