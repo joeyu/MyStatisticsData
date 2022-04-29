@@ -187,7 +187,7 @@ def scrape_and_save(df):
     
     return df
 
-df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-7:,1:10].astype('int64')
+df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-7:,1:10].fillna(0).astype('int64')
 fig, axes = plt.subplots(1, 1)
 ax = df2.plot.area(ax = axes, title = '近7日全国每日新增病例数前10（不包括上海）')
 

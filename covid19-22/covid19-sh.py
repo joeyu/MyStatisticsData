@@ -100,5 +100,5 @@ ax = msd.covid19_plot(ser_new_cases, axes, fit_func = None, traceback = None, an
 
 fig, axes = plt.subplots(1, 1)
 ser_new_deaths = df_sh['上海', '新增死亡'].dropna().astype('int64')
-ax = msd.covid19_plot(ser_new_deaths, axes, fit_func = fit_func_exponential, traceback = None, annotations = None)
+ax = msd.covid19_plot(ser_new_deaths, axes, fit_func = None, traceback = None, annotations = None)
 # msd.plot(df['新增死亡', '上海'], ax = axes)

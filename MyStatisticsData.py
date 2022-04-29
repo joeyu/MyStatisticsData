@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import matplotlib.dates as mdates
+import matplotlib.patheffects as PathEffects
 from fontTools.ttLib import TTFont
 import numpy as np
 from pathlib import Path
@@ -180,14 +181,17 @@ def annotate_plot_line_twins(ax, ser0, ser1):
     if ax == None:
         ax = plt.gca()
 
+    path_effects = [PathEffects.withStroke(linewidth=2, foreground='w')]
     y0, y1 = ax.get_ylim()
     offset = (y1 - y0) / 100 
     for k, v in ser0.iteritems():
         offset2 = offset if v > ser1.get(k, 0) else -offset * 2
-        ax.text(k, v + offset2, v, color = 'r', ha='center') 
+        txt = ax.text(k, v + offset2, v, color = 'r', ha='center') 
+        txt.set_path_effects(path_effects)
     for k, v in ser1.iteritems():
         offset2 = offset if v > ser0.get(k, 0) else -offset * 2
-        ax.text(k, v + offset2, v, color = 'b', ha='center')  
+        txt = ax.text(k, v + offset2, v, color = 'b', ha='center')  
+        txt.set_path_effects(path_effects)
     
     return ax
 
@@ -195,10 +199,12 @@ def annotate_plot_line(ax, ser):
     if ax == None:
         ax = plt.gca()
 
+    path_effects = [PathEffects.withStroke(linewidth=2, foreground='w')]
     y0, y1 = ax.get_ylim()
     offset = (y1 - y0) / 100 
     for k, v in ser.iteritems():
-        ax.text(k, v + offset, v, color = 'r', ha='center') 
+        txt = ax.text(k, v + offset, v, color = 'r', ha='center') 
+        txt.set_path_effects(path_effects)
     
     return ax
 
@@ -206,7 +212,8 @@ def annotate_area_values(ax, df):
     df2 = df.cumsum(axis = 1) - df / 2
     for i in range(len(df)):
         for y, v in zip(df2.iloc[i], df.iloc[i]):
-            ax.text(df2.index[i], y, v, ha = 'center') 
+            txt = ax.text(df2.index[i], y, v, ha = 'center') 
+            txt.set_path_effects([PathEffects.withStroke(linewidth=2, foreground='w')])
 
 def format_xaxis(ax, format):
     if ax == None:
