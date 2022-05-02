@@ -89,7 +89,7 @@ def scrape(link_path, periods):
                                 table_xpath = "//table" 
                                 # WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, table_xpath)))
                                 table_html = driver.find_element_by_xpath(table_xpath).get_attribute('outerHTML')
-                                table_html = msd.remove_duplicated_whitespaces(table_html)
+                                table_html = msd.str_remove_duplicated_whitespaces(table_html)
                                 df = pd.read_html(table_html)[0]
                                 df = cleanup(df)
                                 df.to_csv(f"{link_path}/{year}.csv")

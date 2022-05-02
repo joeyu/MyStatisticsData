@@ -16,7 +16,7 @@ from scipy.optimize import curve_fit
 
 logging.basicConfig(level=logging.INFO)
 
-def remove_duplicated_whitespaces(s):
+def str_remove_duplicated_whitespaces(s):
     return re.sub(r'\s{2,}', ' ', s)
 
 def df_rename_duplicated_columns(df):
@@ -28,6 +28,10 @@ def df_rename_duplicated_columns(df):
     df.columns = cols
 
     return df
+
+def df_rename_columns(df, cols:dict):
+    ren = {v2: k for k, v in cols.items() for v2 in v}
+    return df.rename(columns = ren)
 
 def ser_is_identical(ser, value = None):
     u = ser.unique()
@@ -83,7 +87,7 @@ def load_meta(meta_fp:str):
         meta = json.load(f)
     return meta
 
-def load(data_fp:str = '.'):
+def load(data_fp:str = '.', merge = True):
     """
     Loads raw data from all stored .csv files
     """
@@ -125,11 +129,15 @@ def load(data_fp:str = '.'):
             df = pd.read_csv(fp, index_col = index_col, header = header, comment = "#")
             df.index = pd.PeriodIndex([pd.Period(i) for i in df.index])
 
-            freqstr = df.index.freqstr
-            df_freq_groups.setdefault(freqstr, pd.DataFrame())
-            df_freq_groups[freqstr] = pd.concat([df_freq_groups[freqstr], df])
+            if merge:
+                freqstr = df.index.freqstr
+                df_freq_groups.setdefault(freqstr, pd.DataFrame())
+                df_freq_groups[freqstr] = pd.concat([df_freq_groups[freqstr], df])
+            else:
+                df_array.append(df)
 
-        df_array.extend([df.sort_index(axis = 0) for df in df_freq_groups.values()])
+        if merge:
+            df_array.extend([df.sort_index(axis = 0) for df in df_freq_groups.values()])
         
     if len(df_array) == 0:
         df_array = None
