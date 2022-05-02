@@ -16,6 +16,41 @@ from scipy.optimize import curve_fit
 
 logging.basicConfig(level=logging.INFO)
 
+def remove_duplicated_whitespaces(s):
+    return re.sub(r'\s{2,}', ' ', s)
+
+def df_rename_duplicated_columns(df):
+    cols=pd.Series(df.columns)
+
+    for dup in cols[cols.duplicated()].unique(): 
+        cols[cols == dup] = [dup + '.' + str(i) if i != 0 else dup for i in range(sum(cols == dup))]
+
+    df.columns = cols
+
+    return df
+
+def ser_is_identical(ser, value = None):
+    u = ser.unique()
+    if u.size != 1:
+        return False
+    
+    if value:
+        if u[0] != value:
+            return False
+    
+    return True
+
+def is_float(s):
+    if type(s) == pd.Series:
+        return s.apply(lambda x: is_float(x))
+
+    try:
+        float(s)
+    except ValueError:
+        return False
+    else:
+        return True
+
 def multilevel_df_sort_values(df, *args, **kwargs):
     axis = kwargs.get('axis', 0)
     df_sorted = pd.DataFrame()
