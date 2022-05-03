@@ -41,7 +41,7 @@ renames = {
         '2.非金融企业及机关团体贷款 Loans to Non-financial Enterprises and Government Departments & Organizations']
 }
 
-# dfs = [msd.df_rename_columns(x, renames) for x in dfs]
+dfs = [msd.df_rename_columns(x, renames) for x in dfs]
 
 
     
