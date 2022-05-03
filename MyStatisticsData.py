@@ -19,6 +19,28 @@ logging.basicConfig(level=logging.INFO)
 def str_remove_duplicated_whitespaces(s):
     return re.sub(r'\s{2,}', ' ', s)
 
+def is_float(s):
+    if type(s) == pd.Series:
+        return s.apply(lambda x: is_float(x))
+
+    try:
+        float(s)
+    except ValueError:
+        return False
+    else:
+        return True
+
+def ser_is_identical(ser, value = None):
+    u = ser.unique()
+    if u.size != 1:
+        return False
+    
+    if value:
+        if u[0] != value:
+            return False
+    
+    return True
+
 def df_rename_duplicated_columns(df):
     cols=pd.Series(df.columns)
 
@@ -33,29 +55,7 @@ def df_rename_columns(df, cols:dict):
     ren = {v2: k for k, v in cols.items() for v2 in v}
     return df.rename(columns = ren)
 
-def ser_is_identical(ser, value = None):
-    u = ser.unique()
-    if u.size != 1:
-        return False
-    
-    if value:
-        if u[0] != value:
-            return False
-    
-    return True
-
-def is_float(s):
-    if type(s) == pd.Series:
-        return s.apply(lambda x: is_float(x))
-
-    try:
-        float(s)
-    except ValueError:
-        return False
-    else:
-        return True
-
-def multilevel_df_sort_values(df, *args, **kwargs):
+def df_sort_multilevel_values(df, *args, **kwargs):
     axis = kwargs.get('axis', 0)
     df_sorted = pd.DataFrame()
     if axis == 0:
@@ -67,7 +67,7 @@ def multilevel_df_sort_values(df, *args, **kwargs):
     
     return df_sorted
 
-def multilevel_df_split(df, axis = 0):
+def df_split_multilevel(df, axis = 0):
     dfs = {}
     if axis == 0:
         keys = pd.MultiIndex.from_product(df.index.levels[:-1])
