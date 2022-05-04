@@ -136,7 +136,7 @@ def scrape(link_path, periods):
 
 # link_path = '金融机构信贷收支统计/金融机构本外币信贷收支表'
 link_path = '社会融资规模/社会融资规模存量统计表'
-df = scrape(link_path, 2019)
+df = scrape(link_path, 2022)
 
 # profile = webdriver.FirefoxProfile()
 # profile.set_preference("network.proxy.type", 0)
