@@ -43,5 +43,16 @@ renames = {
 
 dfs = [msd.df_rename_columns(x, renames) for x in dfs]
 
+df = pd.concat(dfs[-4:]).dropna()
+
+fig, axes = plt.subplots(2, 1)
+
+df_i = df[['1.住户存款 Deposits of Households', 
+           '2.非金融企业存款 Deposits of Non-financial Enterprises',
+           '1.住户贷款 Loans to Households',
+           '2.企（事）业单位贷款 Loans to Non-financial Enterprises and Government Departments & Organizations']]
+df_i.plot(ax = axes[0], title = '金融机构本外币信贷收支', grid = True)
+df_i.pct_change(12).plot(ax = axes[1], title = '金融机构本外币信贷收支年增长率', grid = True)
+
 
     
