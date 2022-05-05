@@ -118,7 +118,7 @@ def scrape(link_path, periods):
                 table_html = driver.find_element_by_xpath(table_xpath).get_attribute('outerHTML')
                 table_html = msd.str_remove_duplicated_whitespaces(table_html)
                 df = pd.read_html(table_html)[0]
-                # df = pd_read_html_post_process(df)
+                df = pd_read_html_post_process(df)
                 df.to_csv(f"{link_path}/{year}.csv")
                 print(df)
                 dfs.append(df)
