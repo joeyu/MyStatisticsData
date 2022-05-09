@@ -48,7 +48,9 @@ df = pd.concat(dfs).dropna()
 fig, axes = plt.subplots(2, 1)
 
 df_i = df[['非金融企业境内股票 Equity financing on the domestic stock market by non-financial enterprises', 
-           '企业债券 Net financing of corporate bonds', '政府债券 Government bonds']]
+           '企业债券 Net financing of corporate bonds', 
+           '政府债券 Government bonds',
+           '外币贷款（折合人民币） Foreign currency-denominated loans (RMB equivalent)']]
 df_i.plot(ax = axes[0], title = '社会融资规模存量', grid = True)
 df_i.pct_change(12).plot(ax = axes[1], title = '社会融资规模年增长率', grid = True)
     
