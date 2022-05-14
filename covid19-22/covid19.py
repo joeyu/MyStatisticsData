@@ -153,7 +153,7 @@ def scrape(df):
             if m:
                 print(m.groups())
                 mu_new_cases[('新增死亡', '全国合计')] = int(m.groups()[0])
-                pat = re.compile(r'^.*?均为本土病例，均?在(.+?)$')
+                pat = re.compile(r'^.*?均?为本土病例，均?在(.+?)$')
                 m2 = re.match(pat, m.groups()[1])
                 if m2:
                     k, = m2.groups()
