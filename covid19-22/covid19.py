@@ -162,6 +162,8 @@ def scrape(df):
                             mu_new_cases[('新增死亡', mu)] = int(m.groups()[0])
                 else:
                     raise Exception(f"{m2.groups()}")
+            else:
+                mu_new_cases[('新增死亡', '全国合计')] = 0
 
             dt = pd.Period(year = 2022, month = month, day = day, freq = 'D')
             if not df.empty:
