@@ -43,8 +43,8 @@ sys.path.append(str(d))
 import MyStatisticsData as msd
 
 df = msd.load()
-df_sh = df.swaplevel(axis = 1)[['上海']]
-ser_new_cases = df_sh['上海', '新增病例'].dropna().astype('int64')['2022-03-1':]
+df_sh = df.swaplevel(axis = 1)[['上海']].fillna(0).astype('int64')['2022-03-1':]
+ser_new_cases = df_sh['上海', '新增病例']
 
 def scrape(ser_new_cases):
     new_new_cases = {}
@@ -99,6 +99,6 @@ ax = msd.covid19_plot(ser_new_cases, axes, fit_func = None, traceback = None, an
 # ax = msd.covid19_plot(ser_new_cases, axes, fit_func, traceback = None, annotations = annotations)
 
 fig, axes = plt.subplots(1, 1)
-ser_new_deaths = df_sh['上海', '新增死亡'].dropna().astype('int64')
+ser_new_deaths = df_sh['上海', '新增死亡']
 ax = msd.covid19_plot(ser_new_deaths, axes, fit_func = None, traceback = None, annotations = None)
 # msd.plot(df['新增死亡', '上海'], ax = axes)
