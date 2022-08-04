@@ -189,9 +189,9 @@ def scrape_and_save(df):
     
     return df
 
-df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-7:,0:9].fillna(0).astype('int64')
+df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-14:,0:9].fillna(0).astype('int64')
 fig, axes = plt.subplots(1, 1)
-ax = df2.plot.area(ax = axes, title = '近7日全国每日新增病例数前10')
+ax = df2.plot.area(ax = axes, title = '近14日全国每日新增病例数前10')
 
 msd.annotate_area_values(ax, df2)
 msd.format_xaxis(ax, '%m-%d')
