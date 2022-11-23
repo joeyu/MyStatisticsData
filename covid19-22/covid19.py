@@ -161,7 +161,21 @@ def scrape(df):
                         if mu in k:
                             mu_new_cases[('新增死亡', mu)] = int(m.groups()[0])
                 else:
-                    raise Exception(f"{m2.groups()}")
+                    pat = re.compile(r'^.*?均为本土病例（(.+)）$')
+                    m2 = re.match(pat, m.groups()[1])
+                    if m2:
+                        #print(m2.groups())
+                        for x in m2.groups()[0].split('，'):
+                            m3 = re.match('^(?:其中)?(.+)(\d+)例$', x)
+                            if m3:
+                                k, v = m3.groups()
+                                for mu in municipalities:
+                                    if mu in k:
+                                        mu_new_cases[('新增死亡', mu)] = int(v)
+                            else:
+                                raise Exception(f"{m3.groups()}")
+                    else:
+                        raise Exception(f"{m2.groups()}")
             else:
                 mu_new_cases[('新增死亡', '全国合计')] = 0
 
@@ -195,3 +209,9 @@ ax = df2.plot.area(ax = axes, title = '近14日全国每日新增病例数前10'
 
 msd.annotate_area_values(ax, df2)
 msd.format_xaxis(ax, '%m-%d')
+
+ser_new_cases = df[('新增病例', '全国合计')]['2022-10-1':]
+fig, axes = plt.subplots(1, 1)
+fit_func_exponential = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-11-01'), 'trend': 3}
+fit_func_linear = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-11-01'), 'trend': 7}
+ax = msd.covid19_plot(ser_new_cases, axes, fit_func = fit_func_exponential, traceback = None, annotations = None)
