@@ -203,15 +203,15 @@ def scrape_and_save(df):
     
     return df
 
-df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-14:,0:9].fillna(0).astype('int64')
+df2 = df['新增病例'].drop(['全国合计'], axis = 1).iloc[-14:,0:19].fillna(0).astype('int64')
 fig, axes = plt.subplots(1, 1)
-ax = df2.plot.area(ax = axes, title = '近14日全国每日新增病例数前10')
+ax = df2.plot.area(ax = axes, title = '近14日全国每日新增病例数前20')
 
 msd.annotate_area_values(ax, df2)
 msd.format_xaxis(ax, '%m-%d')
 
 ser_new_cases = df[('新增病例', '全国合计')]['2022-10-1':]
 fig, axes = plt.subplots(1, 1)
-fit_func_exponential = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-11-01'), 'trend': 3}
+fit_func_exponential = {'func': msd.exponential_fit_func, 'type': 'exponential', 'start': pd.Period('2022-10-15'), 'trend': 3}
 fit_func_linear = {'func': msd.linear_fit_func, 'type': 'linear', 'start': pd.Period('2022-11-01'), 'trend': 7}
 ax = msd.covid19_plot(ser_new_cases, axes, fit_func = fit_func_exponential, traceback = None, annotations = None)
